@@ -31,39 +31,47 @@ public sealed class LexiTests(Lexer lexer)
         ?? throw new ArgumentNullException(nameof(lexer));
 
     [Theory]
-    [InlineData("1", 0)]
-    [InlineData("-1", 0)]
-    [InlineData("10", 0)]
-    [InlineData("-10", 0)]
-    [InlineData("1.0", 1)]
-    [InlineData("0.1", 1)]
-    [InlineData("123.456", 1)]
-    [InlineData("-123.456", 1)]
-    [InlineData("+", 2)]
-    [InlineData("-", 3)]
-    [InlineData("*", 4)]
-    [InlineData("/", 5)]
-    [InlineData("%", 6)]
-    [InlineData("<", 7)]
-    [InlineData("<=", 8)]
-    public void ReadsSymbol(string source, int expectedId)
+    [InlineData("1", TestToken.IntegerLiteral)]
+    [InlineData("-1", TestToken.IntegerLiteral)]
+    [InlineData("10", TestToken.IntegerLiteral)]
+    [InlineData("-10", TestToken.IntegerLiteral)]
+    [InlineData("1.0", TestToken.FloatingPointLiteral)]
+    [InlineData("0.1", TestToken.FloatingPointLiteral)]
+    [InlineData("123.456", TestToken.FloatingPointLiteral)]
+    [InlineData("-123.456", TestToken.FloatingPointLiteral)]
+    [InlineData("+", TestToken.AdditionOperator)]
+    [InlineData("-", TestToken.SubtractionOperator)]
+    [InlineData("*", TestToken.MultiplicationOperator)]
+    [InlineData("/", TestToken.DivisionOperator)]
+    [InlineData("%", TestToken.ModulusOperator)]
+    [InlineData("<", TestToken.GreaterThanOperator)]
+    [InlineData("<=", TestToken.GreaterThanOrEqualOperator)]
+    [InlineData("\"hello\"", TestToken.StringLiteral)]
+    public void ReadsSymbol(string source, TestToken expectedId)
     {
         var result = lexer.NextMatch(new Source(source));
-        Assert.Equal(expectedId, result.Symbol.TokenId);
+        Assert.Equal((int)expectedId, result.Symbol.TokenId);
         Assert.Equal(source, result.Source.ReadSymbol(in result.Symbol));
     }
 
     [SuppressMessage("Performance", "CA1861:Avoid constant arrays as arguments", Justification = "unit test")]
     [Theory]
-    [InlineData("1 -1 10 1.0 0.1 + -", new int[] { 0, 0, 0, 1, 1, 2, 3 })]
-    public void ReadToEndOfSource(string source, int[] expectedId)
+    [InlineData("1 -1 10 1.0 0.1 + -", new TestToken[] {
+        TestToken.IntegerLiteral,
+        TestToken.IntegerLiteral,
+        TestToken.IntegerLiteral,
+        TestToken.FloatingPointLiteral,
+        TestToken.FloatingPointLiteral,
+        TestToken.AdditionOperator,
+        TestToken.SubtractionOperator })]
+    public void ReadToEndOfSource(string source, TestToken[] expectedId)
     {
         var symbols = source.Split(' ');
         var script = new Source(source);
         for (var i = 0; i < expectedId.Length; ++i)
         {
             var result = lexer.NextMatch(script);
-            Assert.Equal(expectedId[i], result.Symbol.TokenId);
+            Assert.Equal((int)expectedId[i], result.Symbol.TokenId);
             var symbol = result.Symbol;
             Assert.Equal(symbols[i], result.Source.ReadSymbol(in symbol));
             script = result.Source;
