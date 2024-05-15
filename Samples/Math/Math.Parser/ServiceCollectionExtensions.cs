@@ -11,18 +11,18 @@ public static class ServiceCollectionExtensions
     {
         var builder = VocabularyBuilder
             .Create(RegexOptions.CultureInvariant)
-            .MatchBooleanFalseLiteral("false", TokenIds.FALSE)
-            .MatchBooleanTrueLiteral("true", TokenIds.TRUE)
-            .MatchIntegerLiteral(TokenIds.INTEGER_LITERAL)
-            .MatchFloatingPointLiteral(TokenIds.FLOATING_POINT_LITERAL)
-            .MatchScientificNotationLiteral(TokenIds.SCIENTIFIC_NOTATION_LITERAL)
-            .MatchOperator(@"\+", TokenIds.ADD)
-            .MatchOperator("-", TokenIds.SUBTRACT)
-            .MatchOperator(@"\*", TokenIds.MULTIPLY)
-            .MatchOperator("/", TokenIds.DIVIDE)
-            .MatchOperator("%", TokenIds.MODULUS)
-            .MatchOpeningCircumfixDelimiter(@"\(", TokenIds.OPEN_PARENTHESIS)
-            .MatchClosingCircumfixDelimiter(@"\)", TokenIds.CLOSE_PARENTHESIS);
+            .Match("false", TokenIds.FALSE)
+            .Match("true", TokenIds.TRUE)
+            .Match(CommonPatterns.IntegerLiteral(), TokenIds.INTEGER_LITERAL)
+            .Match(CommonPatterns.FloatingPointLiteral(), TokenIds.FLOATING_POINT_LITERAL)
+            .Match(CommonPatterns.ScientificNotationLiteral(), TokenIds.SCIENTIFIC_NOTATION_LITERAL)
+            .Match(@"\+", TokenIds.ADD)
+            .Match("-", TokenIds.SUBTRACT)
+            .Match(@"\*", TokenIds.MULTIPLY)
+            .Match("/", TokenIds.DIVIDE)
+            .Match("%", TokenIds.MODULUS)
+            .Match(@"\(", TokenIds.OPEN_PARENTHESIS)
+            .Match(@"\)", TokenIds.CLOSE_PARENTHESIS);
 
         services.TryAddTransient(serviceProvider => builder.Build());
         services.TryAddTransient<Parser>();

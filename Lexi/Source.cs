@@ -18,6 +18,9 @@ public readonly ref struct Source(
     public bool IsEndOfSource => Offset >= text.Length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string Remaining() => text[Offset..];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadSymbol(ref readonly Symbol symbol) => symbol.IsEndOfSource
             ? "EOF"
             : symbol.IsError

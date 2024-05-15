@@ -36,7 +36,7 @@ public sealed class Parser(Lexer lexer)
 
         while (!matchResult.Source.IsEndOfSource
             && matchResult.Symbol.IsOperator()
-            && matchResult.Symbol.TokenId.IsTerm())
+            && matchResult.Symbol.IsTerm())
         {
             var right = ParseFactor(matchResult.Source);
 
@@ -62,7 +62,7 @@ public sealed class Parser(Lexer lexer)
 
         while (!matchResult.Source.IsEndOfSource
             && matchResult.Symbol.IsOperator()
-            && matchResult.Symbol.TokenId.IsFactor())
+            && matchResult.Symbol.IsFactor())
         {
             var right = ParseValue(matchResult.Source);
 
@@ -79,15 +79,14 @@ public sealed class Parser(Lexer lexer)
         return left;
     }
 
-    private ParseResult ParseValue(Source script)
+    private ParseResult ParseValue(Source source)
     {
-        if (script.IsEndOfSource)
+        if (source.IsEndOfSource)
         {
             throw new UnexpectedEndOfSourceException("Unexpected end of source");
         }
 
-        string value;
-        var matchResult = lexer.NextMatch(script);
+        var matchResult = lexer.NextMatch(source);
 
         if (matchResult.Symbol.IsNumericLiteral())
         {
@@ -103,20 +102,20 @@ public sealed class Parser(Lexer lexer)
                 return new(new Group(term.Expression), matchResult);
             }
 
-            value = matchResult.Symbol.Token == Tokens.Undefined
-                ? script.Text[script.Offset..]
-                : matchResult
-                    .Source
-                    .ReadSymbol(in matchResult.Symbol);
-            throw new UnexpectedTokenException($"unexpected token '{value}' at {matchResult.Symbol.Offset}. expected close parenthesis.");
+            if (matchResult.Symbol.IsMatch)
+            {
+                throw new UnexpectedTokenException($"unexpected token '{matchResult.Source.ReadSymbol(in matchResult.Symbol)}' at {matchResult.Symbol.Offset}. expected close parenthesis.");
+            }
+
+            throw new UnexpectedEndOfSourceException($"unexpected token '{source.Remaining()}' at {matchResult.Symbol.Offset}. expected close parenthesis.");
         }
 
-        value = matchResult.Symbol.Token == Tokens.Undefined
-            ? script.Text[script.Offset..]
-            : matchResult
-                .Source
-                .ReadSymbol(in matchResult.Symbol);
-        throw new UnexpectedTokenException($"unexpected token '{value}' at {matchResult.Symbol.Offset}. expected number or open parenthesis.");
+        if (matchResult.Symbol.IsMatch)
+        {
+            throw new UnexpectedTokenException($"unexpected token '{matchResult.Source.ReadSymbol(in matchResult.Symbol)}' at {matchResult.Symbol.Offset}. expected number or open parenthesis.");
+        }
+
+        throw new UnexpectedTokenException($"unexpected token '{source.Remaining()}' at {matchResult.Symbol.Offset}. expected number or open parenthesis.");
     }
 
     [SuppressMessage("Style", "IDE0072:Add missing cases", Justification = "switch is complete")]
@@ -127,15 +126,15 @@ public sealed class Parser(Lexer lexer)
             .ReadSymbol(in matchResult.Symbol);
 
         // todo: use TryParse and add error msg on false
-        return matchResult.Symbol.Token switch
+        return matchResult.Symbol.TokenId switch
         {
-            Tokens.IntegerLiteral => new Number(
+            TokenIds.INTEGER_LITERAL => new Number(
                 NumericTypes.Integer,
                 Int32.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture)),
-            Tokens.FloatingPointLiteral => new Number(
+            TokenIds.FLOATING_POINT_LITERAL => new Number(
                 NumericTypes.FloatingPoint,
                 Double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture)),
-            Tokens.ScientificNotationLiteral => new Number(
+            TokenIds.SCIENTIFIC_NOTATION_LITERAL => new Number(
                 NumericTypes.ScientificNotation,
                 Double.Parse(value, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture)),
             _ => new Number(NumericTypes.NotANumber, 0)
