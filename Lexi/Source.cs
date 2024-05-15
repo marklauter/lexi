@@ -13,34 +13,20 @@ public readonly ref struct Source(
     {
     }
 
-    public readonly string Text = text ?? throw new ArgumentNullException(nameof(text));
-    public readonly int Offset = offset;
+    private readonly string text = text ?? throw new ArgumentNullException(nameof(text));
+    public readonly int Offset = Math.Clamp(offset, 0, Int32.MaxValue);
+    public bool IsEndOfSource => Offset >= text.Length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsEndOfSource()
-    {
-        return Offset >= Text.Length;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string ReadSymbol(ref readonly Symbol symbol)
-    {
-        return symbol.IsEndOfSource()
+    public string ReadSymbol(ref readonly Symbol symbol) => symbol.IsEndOfSource
             ? "EOF"
-            : symbol.IsError()
+            : symbol.IsError
                 ? $"lexer error at offset: {symbol.Offset}"
-                : Text[symbol.Offset..(symbol.Offset + symbol.Length)];
-    }
+                : text[symbol.Offset..(symbol.Offset + symbol.Length)];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator string(Source script)
-    {
-        return script.Text;
-    }
+    public static implicit operator string(Source script) => script.text;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Source(string source)
-    {
-        return new(source);
-    }
+    public static implicit operator Source(string source) => new(source);
 }

@@ -6,14 +6,11 @@ public sealed record LogicalExpression(
     Expression Right)
     : BinaryExpression(Left, Right)
 {
-    public override string ToString()
+    public override string ToString() => Operator switch
     {
-        return Operator switch
-        {
-            LogicalOperators.And => nameof(LogicalOperators.And),
-            LogicalOperators.Or => nameof(LogicalOperators.Or),
-            LogicalOperators.Error or
-            _ => throw new InvalidOperationException("Invalid logical operator."),
-        };
-    }
+        LogicalOperators.And => nameof(LogicalOperators.And),
+        LogicalOperators.Or => nameof(LogicalOperators.Or),
+        LogicalOperators.Error or
+        _ => throw new InvalidOperationException("Invalid logical operator."),
+    };
 }

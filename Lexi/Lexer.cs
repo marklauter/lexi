@@ -8,6 +8,49 @@ public sealed class Lexer(
     private readonly Pattern[] patterns = patterns
         ?? throw new ArgumentNullException(nameof(patterns));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MatchResult NextMatch(MatchResult matchResult) => NextMatch(matchResult.Source);
+
+    public MatchResult NextMatch(Source source)
+    {
+        if (source.IsEndOfSource)
+        {
+            return new(source, new(source.Offset, 0, Pattern.EndOfSource));
+        }
+
+        var offset = GetOffset(source);
+
+        // Dragon book says perform all match tests.
+        // Then return best match based on length and pattern set order.
+        // Longest match wins.
+        // Ties to go to first pattern in the set.
+        var patterns = this.patterns.AsSpan();
+        var length = patterns.Length;
+        var bestMatch = new SymbolMatch(new Symbol(0, 0, Pattern.NoMatch), 0);
+        for (var i = 0; i < length; ++i)
+        {
+            var symbolMatch = new SymbolMatch(
+                patterns[i].Match(source, offset),
+                i);
+
+            if (symbolMatch.Symbol.IsMatch && CompareSymbolMatch(symbolMatch, bestMatch) > 0)
+            {
+                bestMatch = symbolMatch;
+            }
+        }
+
+        var symbol = bestMatch.Symbol;
+
+        return symbol.IsMatch
+            ? new(
+                new(source, offset + symbol.Length),
+                symbol)
+            : new(
+                new(source, offset),
+                new(offset, 0, Pattern.LexError));
+    }
+
+    [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly ref struct SymbolMatch(
         Symbol symbol,
         int index)
@@ -40,65 +83,36 @@ public sealed class Lexer(
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MatchResult NextMatch(MatchResult matchResult)
+    private static int GetNewLineOffset(Source source)
     {
-        return NextMatch(matchResult.Script);
+        var offset = source.Offset;
+        var match = CommonPatterns.NewLine()
+            .Match(source, offset);
+        if (match.Success)
+        {
+            offset += match.Length;
+        }
+
+        return offset;
     }
 
-    public MatchResult NextMatch(Source script)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int GetWhitespaceOffset(Source source, int offset)
     {
-        var offset = script.Offset;
-
-        if (script.IsEndOfSource())
-        {
-            return new(
-                script,
-                new(offset, 0, Tokens.EndOfSource, Pattern.EndOfSource));
-        }
-
-        var source = script.Text;
-
-        var match = AuxillaryPatterns.NewLine()
+        var match = CommonPatterns.Whitespace()
             .Match(source, offset);
         if (match.Success)
         {
             offset += match.Length;
         }
 
-        match = AuxillaryPatterns.Whitespace()
-            .Match(source, offset);
-        if (match.Success)
-        {
-            offset += match.Length;
-        }
+        return offset;
+    }
 
-        // dragon book says perform all match tests, and return best match based on length and pattern definition index. longest match wins. ties to go to lowest index.
-        // could replace this loop with a pair of functions, one for this strategy and another to return first match.
-        // first match is faster, but less tolerent pattern definition ordering. everything is tradeoffs.
-        var patterns = this.patterns.AsSpan();
-        var length = patterns.Length;
-        var bestMatch = new SymbolMatch(new Symbol(0, 0, Tokens.NoMatch, Pattern.NoMatch), 0);
-        for (var i = 0; i < length; ++i)
-        {
-            _ = source[offset..];
-            var symbolMatch = new SymbolMatch(
-                patterns[i].Match(source, offset),
-                i);
-
-            if (symbolMatch.Symbol.IsMatch() && CompareSymbolMatch(symbolMatch, bestMatch) > 0)
-            {
-                bestMatch = symbolMatch;
-            }
-        }
-
-        var symbol = bestMatch.Symbol;
-
-        return symbol.IsMatch()
-            ? new(
-                new(source, offset + symbol.Length),
-                symbol)
-            : new(
-                new(source, offset),
-                new(offset, 0, Tokens.LexError, Pattern.LexError));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int GetOffset(Source source)
+    {
+        var offset = GetNewLineOffset(source);
+        return GetWhitespaceOffset(source, offset);
     }
 }

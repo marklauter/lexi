@@ -5,25 +5,19 @@ namespace Math.Parser;
 internal static class TokenIdsExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsFactor(this int tokenId)
+    public static bool IsFactor(this int tokenId) => tokenId switch
     {
-        return tokenId switch
-        {
-            TokenIds.MULTIPLY => true,
-            TokenIds.DIVIDE => true,
-            TokenIds.MODULUS => true,
-            _ => false,
-        };
-    }
+        TokenIds.MULTIPLY => true,
+        TokenIds.DIVIDE => true,
+        TokenIds.MODULUS => true,
+        _ => false,
+    };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsTerm(this int tokenId)
+    public static bool IsTerm(this int tokenId) => tokenId switch
     {
-        return tokenId switch
-        {
-            TokenIds.ADD => true,
-            TokenIds.SUBTRACT => true,
-            _ => false,
-        };
-    }
+        TokenIds.ADD => true,
+        TokenIds.SUBTRACT => true,
+        _ => false,
+    };
 }

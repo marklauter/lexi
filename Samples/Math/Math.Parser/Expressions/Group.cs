@@ -12,10 +12,7 @@ public sealed record Group(
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override double Evaluate()
-    {
-        return Expression.Evaluate();
-    }
+    public override double Evaluate() => Expression.Evaluate();
 
     public override void Print(string indent = "")
     {

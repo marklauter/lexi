@@ -2,7 +2,7 @@
 
 namespace Lexi;
 
-internal partial class AuxillaryPatterns
+public partial class CommonPatterns
 {
     private const RegexOptions PatternOptions =
         RegexOptions.ExplicitCapture |

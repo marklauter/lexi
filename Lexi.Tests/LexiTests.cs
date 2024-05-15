@@ -16,10 +16,10 @@ public sealed class StringLiteralTests(Lexer lexer)
     public void StringLiterals(string source, string expectedSymbol, bool expectedSuccess)
     {
         var result = lexer.NextMatch(source);
-        Assert.Equal(expectedSuccess, result.Symbol.IsMatch());
+        Assert.Equal(expectedSuccess, result.Symbol.IsMatch);
         if (expectedSuccess)
         {
-            Assert.Equal(expectedSymbol, result.Script.ReadSymbol(in result.Symbol)[1..^1]);
+            Assert.Equal(expectedSymbol, result.Source.ReadSymbol(in result.Symbol)[1..^1]);
         }
     }
 }
@@ -50,7 +50,7 @@ public sealed class LexiTests(Lexer lexer)
     {
         var result = lexer.NextMatch(new Source(source));
         Assert.Equal(expectedId, result.Symbol.TokenId);
-        Assert.Equal(source, result.Script.ReadSymbol(in result.Symbol));
+        Assert.Equal(source, result.Source.ReadSymbol(in result.Symbol));
     }
 
     [SuppressMessage("Performance", "CA1861:Avoid constant arrays as arguments", Justification = "unit test")]
@@ -65,8 +65,8 @@ public sealed class LexiTests(Lexer lexer)
             var result = lexer.NextMatch(script);
             Assert.Equal(expectedId[i], result.Symbol.TokenId);
             var symbol = result.Symbol;
-            Assert.Equal(symbols[i], result.Script.ReadSymbol(in symbol));
-            script = result.Script;
+            Assert.Equal(symbols[i], result.Source.ReadSymbol(in symbol));
+            script = result.Source;
         }
     }
 
@@ -76,79 +76,79 @@ public sealed class LexiTests(Lexer lexer)
         var source = "from Address where Street startswith \"Cypress\" and (City = \"Tampa\" or City = \"Miami\")";
         var lexer = VocabularyBuilder
             .Create(RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)
-            .MatchKeyword($"{nameof(TokenIds.FROM)}", TokenIds.FROM)
-            .MatchKeyword($"{nameof(TokenIds.WHERE)}", TokenIds.WHERE)
-            .MatchKeyword($"{nameof(TokenIds.SKIP)}", TokenIds.SKIP)
-            .MatchKeyword($"{nameof(TokenIds.TAKE)}", TokenIds.TAKE)
-            .MatchOperator("contains|c", TokenIds.CONTAINS)
-            .MatchOperator("startswith|sw", TokenIds.STARTS_WITH)
-            .MatchOperator("endswith|ew", TokenIds.ENDS_WITH)
-            .MatchOperator(@"and|&&", TokenIds.LOGICAL_AND)
-            .MatchOperator(@"or|\|\|", TokenIds.LOGICAL_OR)
-            .MatchIdentifier(TokenIds.IDENTIFIER)
-            .MatchBooleanTrueLiteral("true", TokenIds.TRUE)
-            .MatchBooleanFalseLiteral("false", TokenIds.FALSE)
-            .MatchIntegerLiteral(TokenIds.INTEGER_LITERAL)
-            .MatchFloatingPointLiteral(TokenIds.FLOATING_POINT_LITERAL)
-            .MatchScientificNotationLiteral(TokenIds.SCIENTIFIC_NOTATION_LITERAL)
-            .MatchStringLiteral(TokenIds.STRING_LITERAL)
-            .MatchCharacterLiteral(TokenIds.CHAR_LITERAL)
-            .MatchOpeningCircumfixDelimiter(@"\(", TokenIds.OPEN_PARENTHESIS)
-            .MatchClosingCircumfixDelimiter(@"\)", TokenIds.CLOSE_PARENTHESIS)
-            .MatchOperator("=|==", TokenIds.EQUAL)
-            .MatchOperator(">", TokenIds.GREATER_THAN)
-            .MatchOperator(">=", TokenIds.GREATER_THAN_OR_EQUAL)
-            .MatchOperator("<", TokenIds.LESS_THAN)
-            .MatchOperator("<=", TokenIds.LESS_THAN_OR_EQUAL)
-            .MatchOperator("!=", TokenIds.NOT_EQUAL)
+            .Match($"{nameof(TokenIds.FROM)}", TokenIds.FROM)
+            .Match($"{nameof(TokenIds.WHERE)}", TokenIds.WHERE)
+            .Match($"{nameof(TokenIds.SKIP)}", TokenIds.SKIP)
+            .Match($"{nameof(TokenIds.TAKE)}", TokenIds.TAKE)
+            .Match("contains|c", TokenIds.CONTAINS)
+            .Match("startswith|sw", TokenIds.STARTS_WITH)
+            .Match("endswith|ew", TokenIds.ENDS_WITH)
+            .Match(@"and|&&", TokenIds.LOGICAL_AND)
+            .Match(@"or|\|\|", TokenIds.LOGICAL_OR)
+            .Match(CommonPatterns.Identifier(), TokenIds.IDENTIFIER)
+            .Match("true", TokenIds.TRUE)
+            .Match("false", TokenIds.FALSE)
+            .Match(CommonPatterns.IntegerLiteral(), TokenIds.INTEGER_LITERAL)
+            .Match(CommonPatterns.FloatingPointLiteral(), TokenIds.FLOATING_POINT_LITERAL)
+            .Match(CommonPatterns.ScientificNotationLiteral(), TokenIds.SCIENTIFIC_NOTATION_LITERAL)
+            .Match(CommonPatterns.QuotedStringLiteral(), TokenIds.STRING_LITERAL)
+            .Match(CommonPatterns.CharacterLiteral(), TokenIds.CHAR_LITERAL)
+            .Match(@"\(", TokenIds.OPEN_PARENTHESIS)
+            .Match(@"\)", TokenIds.CLOSE_PARENTHESIS)
+            .Match("=|==", TokenIds.EQUAL)
+            .Match(">", TokenIds.GREATER_THAN)
+            .Match(">=", TokenIds.GREATER_THAN_OR_EQUAL)
+            .Match("<", TokenIds.LESS_THAN)
+            .Match("<=", TokenIds.LESS_THAN_OR_EQUAL)
+            .Match("!=", TokenIds.NOT_EQUAL)
             .Build();
 
         var match = lexer.NextMatch(source);
         Assert.Equal(TokenIds.FROM, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.WHERE, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.STARTS_WITH, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.STRING_LITERAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.LOGICAL_AND, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.OPEN_PARENTHESIS, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.EQUAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.STRING_LITERAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.LOGICAL_OR, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.EQUAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.STRING_LITERAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.CLOSE_PARENTHESIS, match.Symbol.TokenId);
     }
 
@@ -159,42 +159,42 @@ public sealed class LexiTests(Lexer lexer)
 
         var lexer = VocabularyBuilder
             .Create(RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)
-            .MatchOperator("(?:contains|c)", TokenIds.CONTAINS)
-            .MatchOperator("and|&&", TokenIds.LOGICAL_AND)
-            .MatchOperator(@"or|\|\|", TokenIds.LOGICAL_OR)
-            .MatchIdentifier(TokenIds.IDENTIFIER)
-            .MatchStringLiteral(TokenIds.STRING_LITERAL)
-            .MatchCharacterLiteral(TokenIds.CHAR_LITERAL)
-            .MatchOpeningCircumfixDelimiter(@"\(", TokenIds.OPEN_PARENTHESIS)
-            .MatchClosingCircumfixDelimiter(@"\)", TokenIds.CLOSE_PARENTHESIS)
-            .MatchOperator("=|==", TokenIds.EQUAL)
+            .Match("(?:contains|c)", TokenIds.CONTAINS)
+            .Match("and|&&", TokenIds.LOGICAL_AND)
+            .Match(@"or|\|\|", TokenIds.LOGICAL_OR)
+            .Match(CommonPatterns.Identifier(), TokenIds.IDENTIFIER)
+            .Match(CommonPatterns.QuotedStringLiteral(), TokenIds.STRING_LITERAL)
+            .Match(CommonPatterns.CharacterLiteral(), TokenIds.CHAR_LITERAL)
+            .Match(@"\(", TokenIds.OPEN_PARENTHESIS)
+            .Match(@"\)", TokenIds.CLOSE_PARENTHESIS)
+            .Match("=|==", TokenIds.EQUAL)
             .Build();
 
         var match = lexer.NextMatch(source);
         Assert.Equal(TokenIds.OPEN_PARENTHESIS, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.EQUAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.STRING_LITERAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.LOGICAL_OR, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.EQUAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.STRING_LITERAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Script);
+        match = lexer.NextMatch(match.Source);
         Assert.Equal(TokenIds.CLOSE_PARENTHESIS, match.Symbol.TokenId);
     }
 

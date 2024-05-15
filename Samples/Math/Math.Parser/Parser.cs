@@ -32,13 +32,13 @@ public sealed class Parser(Lexer lexer)
         var left = ParseFactor(script);
 
         var matchResult = left.MatchResult;
-        matchResult = lexer.NextMatch(matchResult.Script);
+        matchResult = lexer.NextMatch(matchResult.Source);
 
-        while (!matchResult.Script.IsEndOfSource()
+        while (!matchResult.Source.IsEndOfSource
             && matchResult.Symbol.IsOperator()
             && matchResult.Symbol.TokenId.IsTerm())
         {
-            var right = ParseFactor(matchResult.Script);
+            var right = ParseFactor(matchResult.Source);
 
             left = new(
                 new BinaryOperation(
@@ -47,7 +47,7 @@ public sealed class Parser(Lexer lexer)
                 matchResult.Symbol.TokenId),
                 right.MatchResult);
 
-            matchResult = lexer.NextMatch(right.MatchResult.Script);
+            matchResult = lexer.NextMatch(right.MatchResult.Source);
         }
 
         return left;
@@ -58,13 +58,13 @@ public sealed class Parser(Lexer lexer)
         var left = ParseValue(script);
 
         var matchResult = left.MatchResult;
-        matchResult = lexer.NextMatch(matchResult.Script);
+        matchResult = lexer.NextMatch(matchResult.Source);
 
-        while (!matchResult.Script.IsEndOfSource()
+        while (!matchResult.Source.IsEndOfSource
             && matchResult.Symbol.IsOperator()
             && matchResult.Symbol.TokenId.IsFactor())
         {
-            var right = ParseValue(matchResult.Script);
+            var right = ParseValue(matchResult.Source);
 
             left = new(
                 new BinaryOperation(
@@ -73,7 +73,7 @@ public sealed class Parser(Lexer lexer)
                 matchResult.Symbol.TokenId),
                 right.MatchResult);
 
-            matchResult = lexer.NextMatch(right.MatchResult.Script);
+            matchResult = lexer.NextMatch(right.MatchResult.Source);
         }
 
         return left;
@@ -81,7 +81,7 @@ public sealed class Parser(Lexer lexer)
 
     private ParseResult ParseValue(Source script)
     {
-        if (script.IsEndOfSource())
+        if (script.IsEndOfSource)
         {
             throw new UnexpectedEndOfSourceException("Unexpected end of source");
         }
@@ -95,9 +95,9 @@ public sealed class Parser(Lexer lexer)
         }
         else if (matchResult.Symbol.IsOpenCircumfixDelimiter())
         {
-            var term = ParseTerm(matchResult.Script);
+            var term = ParseTerm(matchResult.Source);
 
-            matchResult = lexer.NextMatch(term.MatchResult.Script);
+            matchResult = lexer.NextMatch(term.MatchResult.Source);
             if (matchResult.Symbol.IsCloseCircumfixDelimiter())
             {
                 return new(new Group(term.Expression), matchResult);
@@ -106,7 +106,7 @@ public sealed class Parser(Lexer lexer)
             value = matchResult.Symbol.Token == Tokens.Undefined
                 ? script.Text[script.Offset..]
                 : matchResult
-                    .Script
+                    .Source
                     .ReadSymbol(in matchResult.Symbol);
             throw new UnexpectedTokenException($"unexpected token '{value}' at {matchResult.Symbol.Offset}. expected close parenthesis.");
         }
@@ -114,7 +114,7 @@ public sealed class Parser(Lexer lexer)
         value = matchResult.Symbol.Token == Tokens.Undefined
             ? script.Text[script.Offset..]
             : matchResult
-                .Script
+                .Source
                 .ReadSymbol(in matchResult.Symbol);
         throw new UnexpectedTokenException($"unexpected token '{value}' at {matchResult.Symbol.Offset}. expected number or open parenthesis.");
     }
@@ -123,7 +123,7 @@ public sealed class Parser(Lexer lexer)
     private static Number ParseNumber(ref readonly MatchResult matchResult)
     {
         var value = matchResult
-            .Script
+            .Source
             .ReadSymbol(in matchResult.Symbol);
 
         // todo: use TryParse and add error msg on false

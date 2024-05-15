@@ -102,7 +102,7 @@ public sealed class Parser(Lexer lexer)
         var left = ParseLogicalAnd(matchResult);
 
         matchResult = lexer.NextMatch(left.MatchResult);
-        while (!matchResult.Script.IsEndOfSource()
+        while (!matchResult.Source.IsEndOfSource
             && matchResult.Symbol.TokenId == TokenIds.LOGICAL_OR)
         {
             matchResult = lexer.NextMatch(matchResult);
@@ -125,7 +125,7 @@ public sealed class Parser(Lexer lexer)
         var left = ParseComparison(matchResult);
 
         matchResult = lexer.NextMatch(left.MatchResult);
-        while (!matchResult.Script.IsEndOfSource()
+        while (!matchResult.Source.IsEndOfSource
             && matchResult.Symbol.TokenId == TokenIds.LOGICAL_AND)
         {
             matchResult = lexer.NextMatch(matchResult);
@@ -167,7 +167,7 @@ public sealed class Parser(Lexer lexer)
                 return ParseParentheticalGroup(matchResult);
 
             default:
-                throw new UnexpectedTokenException($"unexpected token '{matchResult.Script.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Script.Offset}. expected {nameof(Tokens.Identifier)} | {nameof(Tokens.OpenCircumfixDelimiter)}.");
+                throw new UnexpectedTokenException($"unexpected token '{matchResult.Source.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Source.Offset}. expected {nameof(Tokens.Identifier)} | {nameof(Tokens.OpenCircumfixDelimiter)}.");
         }
     }
 
@@ -184,7 +184,7 @@ public sealed class Parser(Lexer lexer)
             ? new(
                 new ParentheticalExpression(predicate.Expression),
                 matchResult)
-            : throw new UnexpectedTokenException($"unexpected token '{matchResult.Script.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Script.Offset}. expected {nameof(Tokens.CloseCircumfixDelimiter)}.");
+            : throw new UnexpectedTokenException($"unexpected token '{matchResult.Source.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Source.Offset}. expected {nameof(Tokens.CloseCircumfixDelimiter)}.");
     }
 
     private static ComparisonOperator ParseComparisonOperator(
@@ -194,7 +194,7 @@ public sealed class Parser(Lexer lexer)
 
         return matchResult.Symbol.IsOperator()
             ? (ComparisonOperator)matchResult.Symbol.TokenId
-            : throw new UnexpectedTokenException($"unexpected token '{matchResult.Script.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Script.Offset}. expected comparison operator.");
+            : throw new UnexpectedTokenException($"unexpected token '{matchResult.Source.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Source.Offset}. expected comparison operator.");
     }
 
     private static Keyword ParseKeyword(
@@ -206,7 +206,7 @@ public sealed class Parser(Lexer lexer)
         return matchResult.Symbol.IsKeyword()
             && (Keywords)matchResult.Symbol.TokenId == expectedWord
                 ? (Keyword)matchResult.Symbol.TokenId
-                : throw new UnexpectedTokenException($"unexpected token '{matchResult.Script.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Script.Offset}. expected {nameof(Tokens.Keyword)}.");
+                : throw new UnexpectedTokenException($"unexpected token '{matchResult.Source.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Source.Offset}. expected {nameof(Tokens.Keyword)}.");
     }
 
     private static Identifier ParseIdentifier(
@@ -214,10 +214,10 @@ public sealed class Parser(Lexer lexer)
     {
         CheckEndOfSource(in matchResult);
 
-        var value = matchResult.Script.ReadSymbol(in matchResult.Symbol);
+        var value = matchResult.Source.ReadSymbol(in matchResult.Symbol);
         return matchResult.Symbol.IsIdentifier()
             ? (Identifier)value
-            : throw new UnexpectedTokenException($"unexpected token '{value}' at offset {matchResult.Script.Offset}. expected {nameof(Tokens.Identifier)}.");
+            : throw new UnexpectedTokenException($"unexpected token '{value}' at offset {matchResult.Source.Offset}. expected {nameof(Tokens.Identifier)}.");
     }
 
     [SuppressMessage("Style", "IDE0072:Add missing cases", Justification = "switch is complete")]
@@ -229,27 +229,27 @@ public sealed class Parser(Lexer lexer)
         return matchResult.Symbol.Token switch
         {
             Tokens.IntegerLiteral => (NumericLiteral)Int32.Parse(
-                matchResult.Script.ReadSymbol(in matchResult.Symbol),
+                matchResult.Source.ReadSymbol(in matchResult.Symbol),
                 NumberStyles.Integer,
                 CultureInfo.InvariantCulture),
             Tokens.FloatingPointLiteral => (NumericLiteral)Double.Parse(
-                matchResult.Script.ReadSymbol(in matchResult.Symbol),
+                matchResult.Source.ReadSymbol(in matchResult.Symbol),
                 NumberStyles.Float | NumberStyles.AllowDecimalPoint,
                 CultureInfo.InvariantCulture),
             Tokens.ScientificNotationLiteral => new NumericLiteral(
                 NumericTypes.ScientificNotation,
                 Double.Parse(
-                    matchResult.Script.ReadSymbol(in matchResult.Symbol),
+                    matchResult.Source.ReadSymbol(in matchResult.Symbol),
                     NumberStyles.Number | NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint,
                     CultureInfo.InvariantCulture)),
-            Tokens.StringLiteral => (StringLiteral)matchResult.Script.ReadSymbol(in matchResult.Symbol),
-            Tokens.CharacterLiteral => (CharacterLiteral)matchResult.Script.ReadSymbol(in matchResult.Symbol),
+            Tokens.StringLiteral => (StringLiteral)matchResult.Source.ReadSymbol(in matchResult.Symbol),
+            Tokens.CharacterLiteral => (CharacterLiteral)matchResult.Source.ReadSymbol(in matchResult.Symbol),
             Tokens.BooleanFalseLiteral => (BooleanLiteral)false,
             Tokens.BooleanTrueLiteral => (BooleanLiteral)true,
             Tokens.NullLiteral => new NullLiteral(),
             Tokens.ArrayLiteral => throw new NotImplementedException(),
             Tokens.ObjectLiteral => throw new NotImplementedException(),
-            _ => throw new UnexpectedTokenException($"unexpected token '{matchResult.Script.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Script.Offset}. expected {nameof(Tokens.Literal)}."),
+            _ => throw new UnexpectedTokenException($"unexpected token '{matchResult.Source.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Source.Offset}. expected {nameof(Tokens.Literal)}."),
         };
     }
 
@@ -262,20 +262,20 @@ public sealed class Parser(Lexer lexer)
         return matchResult.Symbol.Token switch
         {
             Tokens.IntegerLiteral => (NumericLiteral)Int32.Parse(
-                matchResult.Script.ReadSymbol(in matchResult.Symbol),
+                matchResult.Source.ReadSymbol(in matchResult.Symbol),
                 NumberStyles.Integer,
                 CultureInfo.InvariantCulture),
             Tokens.FloatingPointLiteral => (NumericLiteral)Double.Parse(
-                matchResult.Script.ReadSymbol(in matchResult.Symbol),
+                matchResult.Source.ReadSymbol(in matchResult.Symbol),
                 NumberStyles.Float | NumberStyles.AllowDecimalPoint,
                 CultureInfo.InvariantCulture),
             Tokens.ScientificNotationLiteral => new NumericLiteral(
                 NumericTypes.ScientificNotation,
                 Double.Parse(
-                    matchResult.Script.ReadSymbol(in matchResult.Symbol),
+                    matchResult.Source.ReadSymbol(in matchResult.Symbol),
                     NumberStyles.Number | NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint,
                     CultureInfo.InvariantCulture)),
-            _ => throw new UnexpectedTokenException($"unexpected token '{matchResult.Script.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Script.Offset}. expected {nameof(Tokens.Literal)}."),
+            _ => throw new UnexpectedTokenException($"unexpected token '{matchResult.Source.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Source.Offset}. expected {nameof(Tokens.Literal)}."),
         };
     }
 
@@ -313,7 +313,7 @@ public sealed class Parser(Lexer lexer)
             return (skip, take);
         }
 
-        throw new UnexpectedTokenException($"unexpected token '{matchResult.Script.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Script.Offset}. expected ({nameof(Keywords.Skip)} | {nameof(Keywords.Take)}).");
+        throw new UnexpectedTokenException($"unexpected token '{matchResult.Source.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Source.Offset}. expected ({nameof(Keywords.Skip)} | {nameof(Keywords.Take)}).");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -326,8 +326,5 @@ public sealed class Parser(Lexer lexer)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsEndOfSource(ref readonly MatchResult matchResult)
-    {
-        return matchResult.Symbol.IsEndOfSource();
-    }
+    private static bool IsEndOfSource(ref readonly MatchResult matchResult) => matchResult.Symbol.IsEndOfSource();
 }

@@ -9,10 +9,7 @@ public sealed class PredicateParseTests(Parser parser)
     private readonly Parser parser = parser ?? throw new ArgumentNullException(nameof(parser));
 
     [Fact]
-    public void Throws_ParseException_When_Source_Is_Empty()
-    {
-        _ = Assert.Throws<UnexpectedEndOfSourceException>(() => parser.Parse(String.Empty));
-    }
+    public void Throws_ParseException_When_Source_Is_Empty() => _ = Assert.Throws<UnexpectedEndOfSourceException>(() => parser.Parse(String.Empty));
 
     [Fact]
     public void Returns_Statement()

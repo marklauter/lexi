@@ -9,10 +9,7 @@ public sealed record NumericLiteral(
     : Expression
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsNaN()
-    {
-        return Type == NumericTypes.NotANumber;
-    }
+    public bool IsNaN() => Type == NumericTypes.NotANumber;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator int(NumericLiteral literal)

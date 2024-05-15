@@ -9,35 +9,23 @@ public class VocabularyBuilder
 
     private readonly RegexOptions regexOptions;
 
-    private VocabularyBuilder(RegexOptions regexOptions)
-    {
-        this.regexOptions = regexOptions;
-    }
+    private VocabularyBuilder(RegexOptions regexOptions) => this.regexOptions = regexOptions;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static VocabularyBuilder Create()
-    {
-        return new VocabularyBuilder(RegexOptions.None);
-    }
+    public static VocabularyBuilder Create() => new(RegexOptions.None);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static VocabularyBuilder Create(RegexOptions regexOptions)
-    {
-        return new VocabularyBuilder(regexOptions);
-    }
+    public static VocabularyBuilder Create(RegexOptions regexOptions) => new(regexOptions);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Lexer Build()
-    {
-        return new Lexer([.. patterns]);
-    }
+    public Lexer Build() => new([.. patterns]);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VocabularyBuilder Match(
         string pattern,
         int tokenId)
     {
-        patterns.Add(new(pattern, regexOptions, tokenId));
+        patterns.Add(new(pattern, tokenId, regexOptions));
 
         return this;
     }
@@ -45,9 +33,9 @@ public class VocabularyBuilder
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VocabularyBuilder Match(
         Regex regex,
-        int id)
+        int tokenId)
     {
-        patterns.Add(new(regex, id));
+        patterns.Add(new(regex, tokenId));
 
         return this;
     }
@@ -56,6 +44,28 @@ public class VocabularyBuilder
     public VocabularyBuilder Match(Pattern[] patterns)
     {
         this.patterns.AddRange(patterns);
+
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public VocabularyBuilder Match<TTokenId>(
+        string pattern,
+        TTokenId tokenId)
+        where TTokenId : Enum
+    {
+        patterns.Add(Pattern.New(pattern, tokenId, regexOptions));
+
+        return this;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public VocabularyBuilder Match<TTokenId>(
+        Regex regex,
+        TTokenId tokenId)
+        where TTokenId : Enum
+    {
+        patterns.Add(Pattern.New(regex, tokenId));
 
         return this;
     }

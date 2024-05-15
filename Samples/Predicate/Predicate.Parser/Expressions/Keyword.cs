@@ -32,16 +32,13 @@ public sealed record Keyword(
         return new Keyword(value);
     }
 
-    public override string ToString()
+    public override string ToString() => Value switch
     {
-        return Value switch
-        {
-            Keywords.From => "from",
-            Keywords.Where => "where",
-            Keywords.Skip => "skip",
-            Keywords.Take => "take",
-            Keywords.Error => throw new ParseException($"{nameof(Keywords)}.{nameof(Keywords.Error)}"),
-            _ => throw new ArgumentOutOfRangeException(nameof(Value)),
-        };
-    }
+        Keywords.From => "from",
+        Keywords.Where => "where",
+        Keywords.Skip => "skip",
+        Keywords.Take => "take",
+        Keywords.Error => throw new ParseException($"{nameof(Keywords)}.{nameof(Keywords.Error)}"),
+        _ => throw new ArgumentOutOfRangeException(nameof(Value)),
+    };
 }

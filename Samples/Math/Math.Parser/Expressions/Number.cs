@@ -9,21 +9,12 @@ public sealed record Number(
 {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsNaN()
-    {
-        return Type == NumericTypes.NotANumber;
-    }
+    public bool IsNaN() => Type == NumericTypes.NotANumber;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override double Evaluate()
-    {
-        return Value;
-    }
+    public override double Evaluate() => Value;
 
-    public override IEnumerable<Expression> Children()
-    {
-        return Enumerable.Empty<Expression>();
-    }
+    public override IEnumerable<Expression> Children() => Enumerable.Empty<Expression>();
 
     private string TypeName => Type switch
     {

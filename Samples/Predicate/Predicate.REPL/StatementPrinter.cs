@@ -100,15 +100,12 @@ internal static class StatementPrinter
         Console.ForegroundColor = fgcolor;
     }
 
-    private static string ReadOperator(BinaryExpression binaryExpression)
+    private static string ReadOperator(BinaryExpression binaryExpression) => binaryExpression switch
     {
-        return binaryExpression switch
-        {
-            ComparisonExpression comparisonExpression => comparisonExpression.ToString(),
-            LogicalExpression logicalExpression => logicalExpression.ToString(),
-            _ => "unexpected expression",
-        };
-    }
+        ComparisonExpression comparisonExpression => comparisonExpression.ToString(),
+        LogicalExpression logicalExpression => logicalExpression.ToString(),
+        _ => "unexpected expression",
+    };
 
     private static void PrintLeaf(
         Expression expression,
