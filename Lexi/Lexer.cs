@@ -18,7 +18,7 @@ public sealed class Lexer(
             return new(source, new(source.Offset, 0, Pattern.EndOfSource));
         }
 
-        var offset = GetOffset(source);
+        var offset = GetNextOffset(source);
 
         // Dragon book says perform all match tests.
         // Then return best match based on length and pattern set order.
@@ -113,7 +113,7 @@ public sealed class Lexer(
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int GetOffset(Source source)
+    private static int GetNextOffset(Source source)
     {
         var offset = GetNewLineOffset(source);
         return GetWhitespaceOffset(source, offset);
