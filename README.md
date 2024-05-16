@@ -14,7 +14,7 @@ https://www.nuget.org/packages/MSL.Lexi/
 dotnet add package MSL.Lexi
 ```
 
-## Samples
+## Sample Projects
 There are two sample projects that demonstrate how to use the lexer within a recursive descent parser. One is a simple math parser and the other is a predicate expression parser.
 Each project includes a parser library, a set of tests for the parser, and a REPL console application that allows you to interact with the parser.
 
@@ -70,7 +70,7 @@ LogicalExpression:
 predicate:>
 ```
 
-## VocabularyBuilder Sample
+## VocabularyBuilder Examples
  You specify the vocabulary with the `VocabularyBuilder` which returns a lexer from the `Build` method.
  
  Here's a sample from the `Math.Parser` project:
@@ -147,7 +147,9 @@ public static IServiceCollection AddParser(this IServiceCollection services)
 }
 ```
 
-The `Math.Parser` implements a classic term/factor recusive descent parser. It uses the lexer to get the next token as required. The parser returns an expression tree that can be evaluated to get the result.
+## Practical Parser Example
+The `Math.Parser` implements a classic term/factor recusive descent parser. The parser returns an expression tree that can be evaluated to get the result.
+We use the lexer to get the next token with calls to one of the `Lexer.NextMatch` overloads as required. 
 
 ```csharp
 using Lexi;
