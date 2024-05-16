@@ -27,10 +27,11 @@ public sealed class Lexer(
         var bestMatch = new SymbolMatch(new Symbol(0, 0, Pattern.NoMatch), 0);
         var patterns = this.patterns.AsSpan();
         var length = patterns.Length;
+        var text = (string)source;
         for (var i = 0; i < length; ++i)
         {
             var symbolMatch = new SymbolMatch(
-                patterns[i].Match(source, offset),
+                patterns[i].Match(text, offset),
                 i);
 
             if (symbolMatch.Symbol.IsMatch && CompareSymbolMatch(symbolMatch, bestMatch) > 0)
@@ -43,10 +44,10 @@ public sealed class Lexer(
 
         return symbol.IsMatch
             ? new(
-                new(source, offset + symbol.Length),
+                new(text, offset + symbol.Length),
                 symbol)
             : new(
-                new(source, offset),
+                new(text, offset),
                 new(offset, 0, Pattern.LexError));
     }
 
