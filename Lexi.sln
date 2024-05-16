@@ -33,6 +33,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Predicate.Parser.Tests", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Predicate.REPL", "Samples\Predicate\Predicate.REPL\Predicate.REPL.csproj", "{ED1A03D3-D4FF-4C78-B4D8-20C223275EBA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{78CC1625-F7EB-438F-BD10-3B3E2C2AC23B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{6FAB29F8-1524-4925-A155-233BE605FC84}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnet.publish.yml = .github\workflows\dotnet.publish.yml
+		.github\workflows\dotnet.tests.yml = .github\workflows\dotnet.tests.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,6 +92,8 @@ Global
 		{80625B43-511B-48C4-8D5F-E00845E2BC63} = {34DD1B12-11C6-440C-9A27-423898026646}
 		{E0DDB201-D407-4CF8-992F-FEC298D9F6B6} = {34DD1B12-11C6-440C-9A27-423898026646}
 		{ED1A03D3-D4FF-4C78-B4D8-20C223275EBA} = {34DD1B12-11C6-440C-9A27-423898026646}
+		{78CC1625-F7EB-438F-BD10-3B3E2C2AC23B} = {983D2F8B-1AAD-4438-A292-1CBCAEA21464}
+		{6FAB29F8-1524-4925-A155-233BE605FC84} = {78CC1625-F7EB-438F-BD10-3B3E2C2AC23B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {196327E5-303B-4718-898F-D01B2AEFEBDC}
