@@ -1,5 +1,6 @@
 ## Build Status
 [![.NET Tests](https://github.com/marklauter/lexi/actions/workflows/dotnet.tests.yml/badge.svg)](https://github.com/marklauter/lexi/actions/workflows/dotnet.tests.yml)
+[![.NET Publish](https://github.com/marklauter/lexi/actions/workflows/dotnet.publish.yml/badge.svg)](https://github.com/marklauter/lexi/actions/workflows/dotnet.publish.yml)
 ##
 ![lexi logo](https://raw.githubusercontent.com/marklauter/lexi/main/images/lexi.png)
 # lexi
