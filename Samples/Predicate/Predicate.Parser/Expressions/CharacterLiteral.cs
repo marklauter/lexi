@@ -21,8 +21,5 @@ public sealed record CharacterLiteral(
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator string(CharacterLiteral literal)
-    {
-        return literal.Value;
-    }
+    public static implicit operator string(CharacterLiteral literal) => literal.Value;
 }

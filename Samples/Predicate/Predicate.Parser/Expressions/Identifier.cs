@@ -7,14 +7,8 @@ public sealed record Identifier(
     : Expression
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Identifier(string value)
-    {
-        return new(value);
-    }
+    public static implicit operator Identifier(string value) => new(value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator string(Identifier value)
-    {
-        return value.Value;
-    }
+    public static implicit operator string(Identifier value) => value.Value;
 }

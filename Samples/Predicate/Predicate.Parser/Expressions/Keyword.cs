@@ -8,29 +8,20 @@ public sealed record Keyword(
     : Expression
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Keyword(int tokenId)
+    public static implicit operator Keyword(int tokenId) => tokenId switch
     {
-        return tokenId switch
-        {
-            TokenIds.FROM => new Keyword(Keywords.From),
-            TokenIds.WHERE => new Keyword(Keywords.Where),
-            TokenIds.SKIP => new Keyword(Keywords.Skip),
-            TokenIds.TAKE => new Keyword(Keywords.Take),
-            _ => throw new ArgumentOutOfRangeException(nameof(tokenId)),
-        };
-    }
+        TokenIds.FROM => new Keyword(Keywords.From),
+        TokenIds.WHERE => new Keyword(Keywords.Where),
+        TokenIds.SKIP => new Keyword(Keywords.Skip),
+        TokenIds.TAKE => new Keyword(Keywords.Take),
+        _ => throw new ArgumentOutOfRangeException(nameof(tokenId)),
+    };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Keywords(Keyword value)
-    {
-        return value.Value;
-    }
+    public static implicit operator Keywords(Keyword value) => value.Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Keyword(Keywords value)
-    {
-        return new Keyword(value);
-    }
+    public static implicit operator Keyword(Keywords value) => new(value);
 
     public override string ToString() => Value switch
     {

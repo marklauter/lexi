@@ -12,43 +12,28 @@ public sealed record NumericLiteral(
     public bool IsNaN() => Type == NumericTypes.NotANumber;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int(NumericLiteral literal)
-    {
-        return Convert.ToInt32(Math.Round(literal.Value, 0));
-    }
+    public static implicit operator int(NumericLiteral literal) => Convert.ToInt32(Math.Round(literal.Value, 0));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator NumericLiteral(int value)
-    {
-        return new(
+    public static implicit operator NumericLiteral(int value) => new(
             NumericTypes.Integer,
             Convert.ToDouble(value));
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator double(NumericLiteral literal)
-    {
-        return literal.Value;
-    }
+    public static implicit operator double(NumericLiteral literal) => literal.Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator NumericLiteral(double value)
-    {
-        return new(
+    public static implicit operator NumericLiteral(double value) => new(
             NumericTypes.FloatingPoint,
             value);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator string(NumericLiteral literal)
+    public static implicit operator string(NumericLiteral literal) => literal.Type switch
     {
-        return literal.Type switch
-        {
-            NumericTypes.ScientificNotation or NumericTypes.FloatingPoint => literal.Value
-                .ToString(CultureInfo.InvariantCulture),
-            NumericTypes.Integer => Convert.ToInt32(Double.Round(literal.Value, 0))
-                .ToString(CultureInfo.InvariantCulture),
-            NumericTypes.NotANumber or _ => "NaN",
-        };
-    }
+        NumericTypes.ScientificNotation or NumericTypes.FloatingPoint => literal.Value
+            .ToString(CultureInfo.InvariantCulture),
+        NumericTypes.Integer => Convert.ToInt32(Double.Round(literal.Value, 0))
+            .ToString(CultureInfo.InvariantCulture),
+        NumericTypes.NotANumber or _ => "NaN",
+    };
 }

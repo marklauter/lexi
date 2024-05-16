@@ -14,7 +14,7 @@ public sealed record Number(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override double Evaluate() => Value;
 
-    public override IEnumerable<Expression> Children() => Enumerable.Empty<Expression>();
+    public override IEnumerable<Expression> Children() => [];
 
     private string TypeName => Type switch
     {
