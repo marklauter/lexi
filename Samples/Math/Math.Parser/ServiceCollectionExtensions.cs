@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions
             .Match(@"\(", TokenIds.OPEN_PARENTHESIS)
             .Match(@"\)", TokenIds.CLOSE_PARENTHESIS);
 
-        services.TryAddTransient(serviceProvider => builder.Build());
+        services.TryAddSingleton(serviceProvider => builder.Build());
         services.TryAddTransient<Parser>();
 
         return services;
