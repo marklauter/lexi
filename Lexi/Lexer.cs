@@ -24,9 +24,9 @@ public sealed class Lexer(
         // Then return best match based on length and pattern set order.
         // Longest match wins.
         // Ties to go to first pattern in the set.
+        var bestMatch = new SymbolMatch(new Symbol(0, 0, Pattern.NoMatch), 0);
         var patterns = this.patterns.AsSpan();
         var length = patterns.Length;
-        var bestMatch = new SymbolMatch(new Symbol(0, 0, Pattern.NoMatch), 0);
         for (var i = 0; i < length; ++i)
         {
             var symbolMatch = new SymbolMatch(
@@ -82,6 +82,7 @@ public sealed class Lexer(
                         : 0;
     }
 
+    // todo: replace the idea of auto-ignore whitespace with Ignore Pattern that gets added to VocabularyBuilder with Ignore() method.
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetNewLineOffset(Source source)
     {
@@ -96,6 +97,7 @@ public sealed class Lexer(
         return offset;
     }
 
+    // todo: replace the idea of auto-ignore whitespace with Ignore Pattern that gets added to VocabularyBuilder with Ignore() method.
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetWhitespaceOffset(Source source, int offset)
     {

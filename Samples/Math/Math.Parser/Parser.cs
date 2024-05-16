@@ -32,7 +32,7 @@ public sealed class Parser(Lexer lexer)
         var left = ParseFactor(script);
 
         var matchResult = left.MatchResult;
-        matchResult = lexer.NextMatch(matchResult.Source);
+        matchResult = lexer.NextMatch(matchResult);
 
         while (!matchResult.Source.IsEndOfSource
             && matchResult.Symbol.IsOperator()
@@ -47,7 +47,7 @@ public sealed class Parser(Lexer lexer)
                 matchResult.Symbol.TokenId),
                 right.MatchResult);
 
-            matchResult = lexer.NextMatch(right.MatchResult.Source);
+            matchResult = lexer.NextMatch(right.MatchResult);
         }
 
         return left;
@@ -58,7 +58,7 @@ public sealed class Parser(Lexer lexer)
         var left = ParseValue(script);
 
         var matchResult = left.MatchResult;
-        matchResult = lexer.NextMatch(matchResult.Source);
+        matchResult = lexer.NextMatch(matchResult);
 
         while (!matchResult.Source.IsEndOfSource
             && matchResult.Symbol.IsOperator()
@@ -73,7 +73,7 @@ public sealed class Parser(Lexer lexer)
                 matchResult.Symbol.TokenId),
                 right.MatchResult);
 
-            matchResult = lexer.NextMatch(right.MatchResult.Source);
+            matchResult = lexer.NextMatch(right.MatchResult);
         }
 
         return left;
@@ -96,7 +96,7 @@ public sealed class Parser(Lexer lexer)
         {
             var term = ParseTerm(matchResult.Source);
 
-            matchResult = lexer.NextMatch(term.MatchResult.Source);
+            matchResult = lexer.NextMatch(term.MatchResult);
             if (matchResult.Symbol.IsCloseCircumfixDelimiter())
             {
                 return new(new Group(term.Expression), matchResult);

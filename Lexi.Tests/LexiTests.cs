@@ -49,7 +49,7 @@ public sealed class LexiTests(Lexer lexer)
     [InlineData("\"hello\"", TestToken.StringLiteral)]
     public void ReadsSymbol(string source, TestToken expectedId)
     {
-        var result = lexer.NextMatch(new Source(source));
+        var result = lexer.NextMatch(source);
         Assert.Equal((int)expectedId, result.Symbol.TokenId);
         Assert.Equal(source, result.Source.ReadSymbol(in result.Symbol));
     }
@@ -67,14 +67,14 @@ public sealed class LexiTests(Lexer lexer)
     public void ReadToEndOfSource(string source, TestToken[] expectedId)
     {
         var symbols = source.Split(' ');
-        var script = new Source(source);
+        var nextSource = new Source(source);
         for (var i = 0; i < expectedId.Length; ++i)
         {
-            var result = lexer.NextMatch(script);
+            var result = lexer.NextMatch(nextSource);
             Assert.Equal((int)expectedId[i], result.Symbol.TokenId);
             var symbol = result.Symbol;
             Assert.Equal(symbols[i], result.Source.ReadSymbol(in symbol));
-            script = result.Source;
+            nextSource = result.Source;
         }
     }
 
@@ -114,49 +114,49 @@ public sealed class LexiTests(Lexer lexer)
         var match = lexer.NextMatch(source);
         Assert.Equal(TokenIds.FROM, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.WHERE, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.STARTS_WITH, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.STRING_LITERAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.LOGICAL_AND, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.OPEN_PARENTHESIS, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.EQUAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.STRING_LITERAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.LOGICAL_OR, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.EQUAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.STRING_LITERAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.CLOSE_PARENTHESIS, match.Symbol.TokenId);
     }
 
@@ -181,28 +181,28 @@ public sealed class LexiTests(Lexer lexer)
         var match = lexer.NextMatch(source);
         Assert.Equal(TokenIds.OPEN_PARENTHESIS, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.EQUAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.STRING_LITERAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.LOGICAL_OR, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.IDENTIFIER, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.EQUAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.STRING_LITERAL, match.Symbol.TokenId);
 
-        match = lexer.NextMatch(match.Source);
+        match = lexer.NextMatch(match);
         Assert.Equal(TokenIds.CLOSE_PARENTHESIS, match.Symbol.TokenId);
     }
 

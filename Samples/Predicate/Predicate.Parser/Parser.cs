@@ -64,9 +64,9 @@ public sealed class Parser(Lexer lexer)
         return ParseStatement(new Source(source));
     }
 
-    private Statement ParseStatement(Source script)
+    private Statement ParseStatement(Source source)
     {
-        var identifier = ParseFrom(script);
+        var identifier = ParseFrom(source);
         var where = ParseWhere(identifier.MatchResult);
         var predicate = ParseLogicalOr(where.MatchResult);
         var (skip, take) = ParseSkipTake(predicate.MatchResult);
@@ -78,9 +78,9 @@ public sealed class Parser(Lexer lexer)
             take);
     }
 
-    private ParseResult<Identifier> ParseFrom(Source script)
+    private ParseResult<Identifier> ParseFrom(Source source)
     {
-        var matchResult = lexer.NextMatch(script);
+        var matchResult = lexer.NextMatch(source);
         _ = ParseKeyword(in matchResult, Keywords.From);
 
         matchResult = lexer.NextMatch(matchResult);
