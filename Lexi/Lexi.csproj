@@ -18,7 +18,7 @@
 		<PackageProjectUrl>https://github.com/marklauter/lexi</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/marklauter/lexi</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageTags>object pool</PackageTags>
+		<PackageTags>lexer MSL lexi tokenizer lexical analyzer scanner</PackageTags>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<IncludeContentInPack>true</IncludeContentInPack>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
