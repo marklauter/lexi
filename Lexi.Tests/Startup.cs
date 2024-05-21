@@ -13,15 +13,17 @@ public sealed class Startup
         .TryAddTransient(serviceProvider =>
             VocabularyBuilder
                 .Create(RegexOptions.CultureInvariant)
-                .Match(@"\G\-?\d+\.\d+", TestToken.FloatingPointLiteral)
-                .Match(@"\G\-?\d+", TestToken.IntegerLiteral)
-                .Match(@"\G\+", TestToken.AdditionOperator)
-                .Match(@"\G\-", TestToken.SubtractionOperator)
-                .Match(@"\G\*", TestToken.MultiplicationOperator)
-                .Match(@"\G/", TestToken.DivisionOperator)
-                .Match(@"\G%", TestToken.ModulusOperator)
-                .Match(@"\G<", TestToken.GreaterThanOperator)
-                .Match(@"\G<=", TestToken.GreaterThanOrEqualOperator)
-                .Match(CommonPatterns.QuotedStringLiteral(), TestToken.StringLiteral)
+                .Match(@"\G\-?\d+\.\d+", (uint)TestToken.FloatingPointLiteral)
+                .Match(@"\G\-?\d+", (uint)TestToken.IntegerLiteral)
+                .Match(@"\G\+", (uint)TestToken.AdditionOperator)
+                .Match(@"\G\-", (uint)TestToken.SubtractionOperator)
+                .Match(@"\G\*", (uint)TestToken.MultiplicationOperator)
+                .Match(@"\G/", (uint)TestToken.DivisionOperator)
+                .Match(@"\G%", (uint)TestToken.ModulusOperator)
+                .Match(@"\G<", (uint)TestToken.GreaterThanOperator)
+                .Match(@"\G<=", (uint)TestToken.GreaterThanOrEqualOperator)
+                .Match(CommonPatterns.QuotedStringLiteral(), (uint)TestToken.StringLiteral)
+                .Ignore(CommonPatterns.Whitespace(), (uint)TestToken.WhiteSpace)
+                .Ignore(CommonPatterns.NewLine(), (uint)TestToken.WhiteSpace)
                 .Build());
 }

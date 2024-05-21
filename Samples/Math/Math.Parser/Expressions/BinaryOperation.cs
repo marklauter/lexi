@@ -3,7 +3,7 @@
 public sealed record BinaryOperation(
     Expression Left,
     Expression Right,
-    int OperatorId)
+    uint OperatorId)
     : Expression
 {
     public override double Evaluate()

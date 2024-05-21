@@ -7,7 +7,7 @@ public sealed record ComparisonOperator(
     : Expression
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator ComparisonOperator(int tokenId) => tokenId switch
+    public static implicit operator ComparisonOperator(uint tokenId) => tokenId switch
     {
         TokenIds.EQUAL => new(ComparisonOperators.Equal),
         TokenIds.NOT_EQUAL => new(ComparisonOperators.NotEqual),

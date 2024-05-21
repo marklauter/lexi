@@ -36,7 +36,9 @@ public static class ServiceCollectionExtensions
             .Match(">=", TokenIds.GREATER_THAN_OR_EQUAL)
             .Match("<", TokenIds.LESS_THAN)
             .Match("<=", TokenIds.LESS_THAN_OR_EQUAL)
-            .Match("!=", TokenIds.NOT_EQUAL);
+            .Match("!=", TokenIds.NOT_EQUAL)
+            .Ignore(CommonPatterns.Whitespace(), TokenIds.WHITE_SPACE)
+            .Ignore(CommonPatterns.NewLine(), TokenIds.WHITE_SPACE);
 
         services.TryAddSingleton(serviceProvider => builder.Build());
         services.TryAddTransient<Parser>();

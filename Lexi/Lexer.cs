@@ -3,10 +3,14 @@
 namespace Lexi;
 
 public sealed class Lexer(
-    Pattern[] patterns)
+    Pattern[] matchPatterns,
+    Pattern[] ignorePatterns)
 {
-    private readonly Pattern[] patterns = patterns
-        ?? throw new ArgumentNullException(nameof(patterns));
+    private readonly Pattern[] matchPatterns = matchPatterns
+        ?? throw new ArgumentNullException(nameof(matchPatterns));
+
+    private readonly Pattern[] ignorePatterns = ignorePatterns
+        ?? throw new ArgumentNullException(nameof(ignorePatterns));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MatchResult NextMatch(MatchResult matchResult) => NextMatch(matchResult.Source);
@@ -24,16 +28,13 @@ public sealed class Lexer(
         // Then return best match based on length and pattern set order.
         // Longest match wins.
         // Ties to go to first pattern in the set.
-        var bestMatch = new SymbolMatch(new Symbol(0, 0, Pattern.NoMatch), 0);
-        var patterns = this.patterns.AsSpan();
+        var bestMatch = new SymbolMatch(default, Int32.MaxValue);
+        var patterns = matchPatterns.AsSpan();
         var length = patterns.Length;
         var text = (string)source;
         for (var i = 0; i < length; ++i)
         {
-            var symbolMatch = new SymbolMatch(
-                patterns[i].Match(text, offset),
-                i);
-
+            var symbolMatch = new SymbolMatch(patterns[i].Match(text, offset), i);
             if (symbolMatch.Symbol.IsMatch && CompareSymbolMatch(symbolMatch, bestMatch) > 0)
             {
                 bestMatch = symbolMatch;
@@ -83,39 +84,19 @@ public sealed class Lexer(
                         : 0;
     }
 
-    // todo: replace the idea of auto-ignore whitespace with Ignore Pattern that gets added to VocabularyBuilder with Ignore() method.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int GetNewLineOffset(Source source)
+    private int GetNextOffset(Source source)
     {
         var offset = source.Offset;
-        var match = CommonPatterns.NewLine()
-            .Match(source, offset);
-        if (match.Success)
+
+        foreach (var ignore in ignorePatterns)
         {
-            offset += match.Length;
+            var match = ignore.Match(source, offset);
+            if (match.IsMatch)
+            {
+                offset += match.Length;
+            }
         }
 
         return offset;
-    }
-
-    // todo: replace the idea of auto-ignore whitespace with Ignore Pattern that gets added to VocabularyBuilder with Ignore() method.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int GetWhitespaceOffset(Source source, int offset)
-    {
-        var match = CommonPatterns.Whitespace()
-            .Match(source, offset);
-        if (match.Success)
-        {
-            offset += match.Length;
-        }
-
-        return offset;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int GetNextOffset(Source source)
-    {
-        var offset = GetNewLineOffset(source);
-        return GetWhitespaceOffset(source, offset);
     }
 }

@@ -2,12 +2,14 @@
 
 internal sealed class TokenIds
 {
+    public const int WHITE_SPACE = 0;
+
     // literals
-    public const int FALSE = 0;
-    public const int TRUE = 1;
-    public const int FLOATING_POINT_LITERAL = 2;
-    public const int INTEGER_LITERAL = 3;
-    public const int SCIENTIFIC_NOTATION_LITERAL = 4;
+    public const int FALSE = 1;
+    public const int TRUE = 2;
+    public const int FLOATING_POINT_LITERAL = 3;
+    public const int INTEGER_LITERAL = 4;
+    public const int SCIENTIFIC_NOTATION_LITERAL = 5;
 
     // operators
     public const int ADD = '+'; // 43

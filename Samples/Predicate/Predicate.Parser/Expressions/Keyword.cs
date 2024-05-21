@@ -8,7 +8,7 @@ public sealed record Keyword(
     : Expression
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Keyword(int tokenId) => tokenId switch
+    public static implicit operator Keyword(uint tokenId) => tokenId switch
     {
         TokenIds.FROM => new Keyword(Keywords.From),
         TokenIds.WHERE => new Keyword(Keywords.Where),

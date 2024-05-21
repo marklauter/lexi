@@ -8,17 +8,20 @@ namespace Lexi;
 public readonly ref struct Symbol(
     int offset,
     int length,
-    int tokenId)
+    uint tokenId)
 {
-    public readonly int Offset = Math.Clamp(offset, 0, Int32.MaxValue);
-    public readonly int Length = Math.Clamp(length, 0, Int32.MaxValue);
-    public readonly int TokenId = tokenId;
+    public readonly int Offset = offset < 0
+        ? throw new ArgumentOutOfRangeException(nameof(offset))
+        : offset;
+    public readonly int Length = length < 0
+        ? throw new ArgumentOutOfRangeException(nameof(length))
+        : length;
+    public readonly uint TokenId = tokenId;
 
-    public bool IsMatch => Length > 0
-        && TokenId is not Pattern.NoMatch or Pattern.EndOfSource or Pattern.LexError;
+    public bool IsMatch => Length > 0;
     public bool IsError => TokenId == Pattern.LexError;
     public bool IsEndOfSource => TokenId == Pattern.EndOfSource;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Is(int tokenId) => TokenId == tokenId;
+    public bool Is(uint tokenId) => TokenId == tokenId;
 }

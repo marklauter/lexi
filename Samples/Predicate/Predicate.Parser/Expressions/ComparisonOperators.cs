@@ -1,6 +1,6 @@
 ﻿namespace Predicate.Parser.Expressions;
 
-public enum ComparisonOperators
+public enum ComparisonOperators : uint
 {
     Error = 0,
     Equal = TokenIds.EQUAL,

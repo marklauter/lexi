@@ -22,7 +22,9 @@ public static class ServiceCollectionExtensions
             .Match("/", TokenIds.DIVIDE)
             .Match("%", TokenIds.MODULUS)
             .Match(@"\(", TokenIds.OPEN_PARENTHESIS)
-            .Match(@"\)", TokenIds.CLOSE_PARENTHESIS);
+            .Match(@"\)", TokenIds.CLOSE_PARENTHESIS)
+            .Ignore(CommonPatterns.Whitespace(), TokenIds.WHITE_SPACE)
+            .Ignore(CommonPatterns.NewLine(), TokenIds.WHITE_SPACE);
 
         services.TryAddSingleton(serviceProvider => builder.Build());
         services.TryAddTransient<Parser>();

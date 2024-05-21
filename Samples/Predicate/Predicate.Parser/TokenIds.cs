@@ -20,36 +20,37 @@ internal static class SymbolExtensions
 
 internal sealed class TokenIds
 {
+    public const uint WHITE_SPACE = 0;
     // literals
-    public const int FALSE = -1;
-    public const int TRUE = -2;
-    public const int FLOATING_POINT_LITERAL = -3;
-    public const int INTEGER_LITERAL = -4;
-    public const int SCIENTIFIC_NOTATION_LITERAL = -5;
-    public const int STRING_LITERAL = -6;
-    public const int CHAR_LITERAL = -7;
-    public const int NULL_LITERAL = -8;
-    public const int ARRAY_LITERAL = -9;
-    public const int OBJECT_LITERAL = -10;
+    public const uint FALSE = 1001;
+    public const uint TRUE = 1002;
+    public const uint FLOATING_POINT_LITERAL = 1003;
+    public const uint INTEGER_LITERAL = 1004;
+    public const uint SCIENTIFIC_NOTATION_LITERAL = 1005;
+    public const uint STRING_LITERAL = 1006;
+    public const uint CHAR_LITERAL = 1007;
+    public const uint NULL_LITERAL = 1008;
+    public const uint ARRAY_LITERAL = 1009;
+    public const uint OBJECT_LITERAL = 1010;
 
     // delimiters
-    public const int OPEN_PARENTHESIS = '('; // 40
-    public const int CLOSE_PARENTHESIS = ')'; // 41
+    public const uint OPEN_PARENTHESIS = '('; // 40
+    public const uint CLOSE_PARENTHESIS = ')'; // 41
 
     // comparison operators
-    public const int EQUAL = '='; // 61
-    public const int NOT_EQUAL = 400;
-    public const int GREATER_THAN = '>'; // 62
-    public const int GREATER_THAN_OR_EQUAL = 402;
-    public const int LESS_THAN = '<'; // 60
-    public const int LESS_THAN_OR_EQUAL = 401;
-    public const int STARTS_WITH = 405;
-    public const int ENDS_WITH = 406;
-    public const int CONTAINS = 407;
+    public const uint EQUAL = '='; // 61
+    public const uint NOT_EQUAL = 400;
+    public const uint GREATER_THAN = '>'; // 62
+    public const uint GREATER_THAN_OR_EQUAL = 402;
+    public const uint LESS_THAN = '<'; // 60
+    public const uint LESS_THAN_OR_EQUAL = 401;
+    public const uint STARTS_WITH = 405;
+    public const uint ENDS_WITH = 406;
+    public const uint CONTAINS = 407;
 
     // logical operators
-    public const int LOGICAL_AND = 403;
-    public const int LOGICAL_OR = 404;
+    public const uint LOGICAL_AND = 403;
+    public const uint LOGICAL_OR = 404;
 
     // names
     public const int IDENTIFIER = 500;

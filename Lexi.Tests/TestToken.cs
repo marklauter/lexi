@@ -1,6 +1,6 @@
 ﻿namespace Lexi.Tests;
 
-public enum TestToken
+public enum TestToken : uint
 {
     IntegerLiteral = 0,
     FloatingPointLiteral = 1,
@@ -12,4 +12,5 @@ public enum TestToken
     ModulusOperator = 8,
     GreaterThanOperator = 9,
     GreaterThanOrEqualOperator = 10,
+    WhiteSpace = 99,
 }

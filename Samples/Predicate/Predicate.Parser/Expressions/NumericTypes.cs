@@ -1,7 +1,9 @@
-﻿namespace Predicate.Parser.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "IDGAD")]
-public enum NumericTypes
+namespace Predicate.Parser.Expressions;
+
+[SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "IDGAD")]
+public enum NumericTypes : uint
 {
     NotANumber = 0, // NaN
     Integer = TokenIds.INTEGER_LITERAL,
