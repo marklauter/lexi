@@ -1,6 +1,7 @@
 ## Build Status
 [![.NET Tests](https://github.com/marklauter/lexi/actions/workflows/dotnet.tests.yml/badge.svg)](https://github.com/marklauter/lexi/actions/workflows/dotnet.tests.yml)
 [![.NET Publish](https://github.com/marklauter/lexi/actions/workflows/dotnet.publish.yml/badge.svg)](https://github.com/marklauter/lexi/actions/workflows/dotnet.publish.yml)
+[![Nuget](https://img.shields.io/badge/Nuget-v1.0.3-blue)](https://www.nuget.org/packages/MSL.Lexi/)
 
 ##
 ![lexi logo](https://raw.githubusercontent.com/marklauter/lexi/main/images/lexi.png)
