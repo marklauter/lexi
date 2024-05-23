@@ -42,25 +42,19 @@ public sealed class Lexer(
         // Dragon book says perform all match tests.
         // Then return best match based on length and pattern set index.
         var text = (string)source;
-        var bestMatch = new SymbolMatch(default, Int32.MaxValue);
+        var bestMatch = new SymbolMatch(new(offset, 0, Pattern.NoMatch), Int32.MaxValue);
         var patterns = matchPatterns;
         var length = patterns.Length;
         for (var i = 0; i < length; ++i)
         {
-            bestMatch = CompareAndSwap(
-                new SymbolMatch(patterns[i].Match(text, offset), i),
-                bestMatch);
+            bestMatch = CompareAndSwap(patterns[i].Match(text, offset), i, bestMatch);
         }
 
         var symbol = bestMatch.Symbol;
 
         return symbol.IsMatch
-            ? new(
-                new(text, offset + symbol.Length),
-                symbol)
-            : new(
-                new(text, offset),
-                new(offset, 0, Pattern.LexError));
+            ? new(new(text, offset + symbol.Length), symbol)
+            : new(new(text, offset), symbol);
     }
 
     [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -89,19 +83,17 @@ public sealed class Lexer(
         return offset;
     }
 
+    // no match is not swap candidate
+    // longer match wins
+    // tie goes to lowest index
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static SymbolMatch CompareAndSwap(
-        SymbolMatch nextMatch,
-        SymbolMatch bestMatch) =>
-        // no match is not swap candidate
-        !nextMatch.Symbol.IsMatch
+    private static SymbolMatch CompareAndSwap(Symbol nextSymbol, int index, SymbolMatch bestMatch) =>
+        !nextSymbol.IsMatch
             ? bestMatch
-            // longer match wins
-            : nextMatch.Symbol.Length.CompareTo(bestMatch.Symbol.Length) switch
+            : nextSymbol.Length.CompareTo(bestMatch.Symbol.Length) switch
             {
-                > 0 => nextMatch,
+                > 0 => new(nextSymbol, index),
                 < 0 => bestMatch,
-                // tie goes to lowest index
-                0 or _ => nextMatch.Index < bestMatch.Index ? nextMatch : bestMatch,
+                0 or _ => index < bestMatch.Index ? new(nextSymbol, index) : bestMatch,
             };
 }
