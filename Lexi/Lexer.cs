@@ -37,23 +37,19 @@ public sealed class Lexer(
             return new(source, new(source.Offset, 0, Pattern.EndOfSource));
         }
 
-        var offset = GetNextOffset(source);
+        var offset = NextOffset(source);
 
         // Dragon book says perform all match tests.
-        // Then return best match based on length and pattern set order.
-        // Longest match wins.
-        // Ties to go to first pattern in the set.
-        var bestMatch = new SymbolMatch(default, Int32.MaxValue);
-        var patterns = matchPatterns.AsSpan();
-        var length = patterns.Length;
+        // Then return best match based on length and pattern set index.
         var text = (string)source;
+        var bestMatch = new SymbolMatch(default, Int32.MaxValue);
+        var patterns = matchPatterns;
+        var length = patterns.Length;
         for (var i = 0; i < length; ++i)
         {
-            var symbolMatch = new SymbolMatch(patterns[i].Match(text, offset), i);
-            if (symbolMatch.Symbol.IsMatch && CompareSymbolMatch(symbolMatch, bestMatch) > 0)
-            {
-                bestMatch = symbolMatch;
-            }
+            bestMatch = CompareAndSwap(
+                new SymbolMatch(patterns[i].Match(text, offset), i),
+                bestMatch);
         }
 
         var symbol = bestMatch.Symbol;
@@ -76,36 +72,14 @@ public sealed class Lexer(
         public readonly int Index = index;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int CompareSymbolMatch(
-        SymbolMatch l,
-        SymbolMatch r)
-    {
-        var lLenth = l.Symbol.Length;
-        var rLength = r.Symbol.Length;
-        var lIndex = l.Index;
-        var rIndex = r.Index;
-
-        // longer match wins. tie goes to lowest index.
-        return
-            lLenth > rLength
-            ? 1
-            : lLenth < rLength
-                ? -1
-                : lIndex < rIndex
-                    ? 1
-                    : lIndex > rIndex
-                        ? -1
-                        : 0;
-    }
-
-    private int GetNextOffset(Source source)
+    private int NextOffset(Source source)
     {
         var offset = source.Offset;
 
-        foreach (var ignore in ignorePatterns)
+        var patterns = ignorePatterns;
+        foreach (var pattern in patterns)
         {
-            var match = ignore.Match(source, offset);
+            var match = pattern.Match(source, offset);
             if (match.IsMatch)
             {
                 offset += match.Length;
@@ -114,4 +88,20 @@ public sealed class Lexer(
 
         return offset;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static SymbolMatch CompareAndSwap(
+        SymbolMatch nextMatch,
+        SymbolMatch bestMatch) =>
+        // no match is not swap candidate
+        !nextMatch.Symbol.IsMatch
+            ? bestMatch
+            // longer match wins
+            : nextMatch.Symbol.Length.CompareTo(bestMatch.Symbol.Length) switch
+            {
+                > 0 => nextMatch,
+                < 0 => bestMatch,
+                // tie goes to lowest index
+                0 or _ => nextMatch.Index < bestMatch.Index ? nextMatch : bestMatch,
+            };
 }
