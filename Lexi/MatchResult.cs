@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Lexi;
@@ -9,6 +10,7 @@ namespace Lexi;
 /// <param name="source"><see cref="Source"/></param>
 /// <param name="symbol"><see cref="Symbol"/></param>
 [SuppressMessage("Design", "CA1051:Do not declare visible instance fields", Justification = "it's a struct")]
+[DebuggerDisplay("{Source}, {Symbol}")]
 [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
 public readonly ref struct MatchResult(
     Source source,
