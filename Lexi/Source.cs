@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Lexi;
@@ -9,6 +10,7 @@ namespace Lexi;
 /// <param name="text"><see cref="String"/></param>
 /// <param name="offset"><see cref="Int32"/></param>
 [SuppressMessage("Design", "CA1051:Do not declare visible instance fields", Justification = "it's a struct")]
+[DebuggerDisplay("{Offset}, {text}")]
 [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
 public readonly ref struct Source(
     string text,
@@ -51,7 +53,7 @@ public readonly ref struct Source(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadSymbol(ref readonly Symbol symbol) => symbol.IsEndOfSource
             ? "EOF"
-            : symbol.IsError
+            : !symbol.IsMatch
                 ? $"lexer error at offset: {symbol.Offset}"
                 : text[symbol.Offset..(symbol.Offset + symbol.Length)];
 
