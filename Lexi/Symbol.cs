@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Lexi;
@@ -10,6 +11,7 @@ namespace Lexi;
 /// <param name="length">The length of the symbol.</param>
 /// <param name="tokenId">The token id of the symbol.</param>
 [SuppressMessage("Design", "CA1051:Do not declare visible instance fields", Justification = "it's a struct")]
+[DebuggerDisplay("{Offset}, {Length}, {TokenId}")]
 [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
 public readonly ref struct Symbol(
     int offset,
@@ -38,15 +40,7 @@ public readonly ref struct Symbol(
     /// <summary>
     /// Returns true if length > 0.
     /// </summary>
-    public bool IsMatch => Length > 0;
-
-    /// <summary>
-    /// Returns true if the token id is LexError.
-    /// </summary>
-    /// <remarks>
-    /// Set by the lexer when it can't find any matchig patterns in the vocabulary.
-    /// </remarks>
-    public bool IsError => TokenId == Pattern.LexError;
+    public bool IsMatch => (TokenId & Pattern.NoMatch) == 0 && Length > 0 && !IsEndOfSource;
 
     /// <summary>
     /// Returns true if the token id is EndOfSource.
@@ -54,7 +48,7 @@ public readonly ref struct Symbol(
     /// <remarks>
     /// Set by the lexer when the end of the source is reached.
     /// </remarks>
-    public bool IsEndOfSource => TokenId == Pattern.EndOfSource;
+    public bool IsEndOfSource => (TokenId & Pattern.EndOfSource) != 0;
 
     /// <summary>
     /// Returns true if the passed token id equals the symbol token id.
