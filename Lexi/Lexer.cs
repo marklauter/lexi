@@ -2,6 +2,11 @@
 
 namespace Lexi;
 
+/// <summary>
+/// A lexer named Lexi.
+/// </summary>
+/// <param name="matchPatterns"><see cref="Pattern"/></param>
+/// <param name="ignorePatterns"><see cref="Pattern"/></param>
 public sealed class Lexer(
     Pattern[] matchPatterns,
     Pattern[] ignorePatterns)
@@ -12,9 +17,19 @@ public sealed class Lexer(
     private readonly Pattern[] ignorePatterns = ignorePatterns
         ?? throw new ArgumentNullException(nameof(ignorePatterns));
 
+    /// <summary>
+    /// Returns the next match from the source of the previous match. 
+    /// </summary>
+    /// <param name="matchResult"><see cref="MatchResult"/></param>
+    /// <returns><see cref="MatchResult"/></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MatchResult NextMatch(MatchResult matchResult) => NextMatch(matchResult.Source);
 
+    /// <summary>
+    /// Returns the next match from the source.
+    /// </summary>
+    /// <param name="source"><see cref="Source"/></param>
+    /// <returns><see cref="MatchResult"/></returns>
     public MatchResult NextMatch(Source source)
     {
         if (source.IsEndOfSource)
