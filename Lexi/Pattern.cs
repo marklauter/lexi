@@ -15,12 +15,12 @@ public sealed class Pattern
     /// <summary>
     /// const end of source token id
     /// </summary>
-    public const uint EndOfSource = UInt32.MaxValue;
+    public const uint EndOfSource = 1U << 31;
 
     /// <summary>
     /// const lex error token id
     /// </summary>
-    public const uint LexError = UInt32.MaxValue - 1;
+    public const uint NoMatch = 1U << 30;
 
     /// <summary>
     /// Creates a new pattern.
@@ -61,8 +61,8 @@ public sealed class Pattern
     private Pattern(Regex regex, uint tokenId)
     {
         this.regex = regex ?? throw new ArgumentNullException(nameof(regex));
-        this.tokenId = tokenId is EndOfSource or LexError
-            ? throw new ArgumentOutOfRangeException($"Reserved token id conflict. TokenId can't match: {EndOfSource}, {LexError}")
+        this.tokenId = tokenId >= NoMatch
+            ? throw new ArgumentOutOfRangeException($"Reserved token id conflict. Values over {NoMatch} are reserved.")
             : tokenId;
     }
 
@@ -81,6 +81,6 @@ public sealed class Pattern
         var match = regex.Match(source, offset);
         return match.Success
            ? new(match.Index, match.Length, tokenId)
-           : new(offset, 0, tokenId);
+           : new(offset, 0, tokenId | Pattern.NoMatch);
     }
 }
