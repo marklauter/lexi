@@ -14,7 +14,7 @@ public partial class CommonPatterns
         RegexOptions.CultureInvariant;
 
 #if NET7_0_OR_GREATER
-    [GeneratedRegex(@"\G\r\n|[\r\n]", PatternOptions)]
+    [GeneratedRegex(@"\G(\r\n|[\r\n])", PatternOptions)]
     public static partial Regex NewLine();
 
     [GeneratedRegex(@"\G\s+", PatternOptions)]
@@ -40,7 +40,7 @@ public partial class CommonPatterns
     public static partial Regex Identifier();
 #elif NET6_0_OR_GREATER
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-    public static Regex NewLine() => new(@"\G\r\n|[\r\n]", PatternOptions);
+    public static Regex NewLine() => new(@"\G(\r\n|[\r\n])", PatternOptions);
 
     public static Regex Whitespace() => new(@"\G\s+", PatternOptions);
 
