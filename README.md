@@ -10,7 +10,7 @@
 ![lexi logo](https://raw.githubusercontent.com/marklauter/lexi/main/images/lexi.png)
 
 # lexi
-A regex based lexer for dotnet. The lexer supports simple L1 recursive descent parsers.
+A regex-based lexer for dotnet. The lexer supports simple L1 recursive descent parsers.
 
 ## Nuget Package
 https://www.nuget.org/packages/MSL.Lexi/
@@ -19,7 +19,7 @@ dotnet add package MSL.Lexi
 ```
 
 ## Sample Projects
-There are two sample projects that demonstrate how to use the lexer within a recursive descent parser. One is a simple math parser and the other is a predicate expression parser.
+I've included two sample projects in the repo to demonstrate the lexer within a recursive descent parser. One is a simple math parser and the other is a predicate expression parser.
 Each project includes a parser library, a set of tests for the parser, and a REPL console application that allows you to interact with the parser.
 
 See [Math.Parser](https://github.com/marklauter/lexi/tree/main/Samples/Math) and [Predicate.Parser](https://github.com/marklauter/lexi/tree/main/Samples/Predicate) for working samples.
@@ -152,7 +152,7 @@ public static IServiceCollection AddParser(this IServiceCollection services)
 ```
 
 ## Practical Parser Example
-The `Math.Parser` implements a classic term/factor recusive descent parser. The parser returns an expression tree that can be evaluated to get the result.
+The `Math.Parser` implements a classic term/factor recursive descent parser. The parser returns an expression tree that can be evaluated to get the result.
 We use the lexer to get the next token with calls to one of the `Lexer.NextMatch` overloads as required. 
 
 ```csharp
@@ -169,7 +169,6 @@ public sealed class Parser(Lexer lexer)
     private readonly Lexer lexer = lexer
         ?? throw new ArgumentNullException(nameof(lexer));
 
-    // Parse the source string into an expression tree.
     public Expression Parse(string source)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -284,7 +283,6 @@ public sealed class Parser(Lexer lexer)
             .Source
             .ReadSymbol(in matchResult.Symbol);
 
-        // todo: use TryParse and add error msg on false
         return matchResult.Symbol.TokenId switch
         {
             TokenIds.INTEGER_LITERAL => new Number(
