@@ -19,10 +19,10 @@ public readonly ref struct Source(
     /// <summary>
     /// Initializes the source with the text and zero offset.
     /// </summary>
-    /// <param name="source"></param>
+    /// <param name="text"></param>
     [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Source(string source)
-        : this(source, 0)
+    public Source(string text)
+        : this(text, 0)
     {
     }
 
@@ -52,10 +52,10 @@ public readonly ref struct Source(
     /// <returns><see cref="String"/></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadSymbol(ref readonly Symbol symbol) => symbol.IsEndOfSource
-            ? "EOF"
-            : !symbol.IsMatch
-                ? $"lexer error at offset: {symbol.Offset}"
-                : text[symbol.Offset..(symbol.Offset + symbol.Length)];
+        ? "EOF"
+        : !symbol.IsMatch
+            ? $"lexer error at offset: {symbol.Offset}"
+            : text[symbol.Offset..(symbol.Offset + symbol.Length)];
 
     /// <summary>
     /// Implicit operator converts source to string.
