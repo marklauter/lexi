@@ -12,10 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: 8.0.x
+    - uses: ./.github/actions/setup-dotnet
 
     - name: Restore dependencies
       run: dotnet restore
@@ -45,18 +42,15 @@ jobs:
           patch=$(echo $current_tag | cut -d "." -f 3)
           package_version="$major.$minor.$patch"
           echo "PACKAGE_VERSION=$package_version" >> $GITHUB_OUTPUT
-  
+
   publish:
-    needs: 
+    needs:
     - test
     - version
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: 8.0.x
+    - uses: ./.github/actions/setup-dotnet
 
     - name: Echo Package Version
       run: echo ${{ needs.version.outputs.PACKAGE_VERSION }}
