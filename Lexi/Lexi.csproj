@@ -43,7 +43,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="8.0.5" />
+		<PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="10.0.9" />
 	</ItemGroup>
 
 	<ItemGroup>
