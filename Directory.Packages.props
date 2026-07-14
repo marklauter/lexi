@@ -1,0 +1,35 @@
+<Project>
+
+	<PropertyGroup>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Lexi library -->
+		<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.300" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Samples -->
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
+		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Tests -->
+		<PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.9" />
+		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+		<PackageVersion Include="xunit.v3" Version="3.2.2" />
+		<PackageVersion Include="Xunit.DependencyInjection" Version="11.3.0" />
+		<PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+		<PackageVersion Include="coverlet.collector" Version="10.0.1" />
+		<PackageVersion Include="coverlet.msbuild" Version="10.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Mandatory analyzer, all projects, all types: IDisposable correctness. -->
+		<GlobalPackageReference Include="IDisposableAnalyzers" Version="4.0.8" />
+	</ItemGroup>
+
+</Project>

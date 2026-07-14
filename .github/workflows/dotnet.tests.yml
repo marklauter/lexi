@@ -1,26 +1,50 @@
-permissions:
-  contents: read
-
 name: .NET Tests
 
 on:
   push:
     branches: [ "main" ]
+    paths: [ "src/**", "tests/**", "samples/**", "Directory.Build.props", "Directory.Build.targets", "Directory.Packages.props", ".editorconfig", "global.json", ".github/workflows/dotnet.tests.yml", ".github/actions/setup-dotnet/action.yml" ]
   pull_request:
     branches: [ "main" ]
+    paths: [ "src/**", "tests/**", "samples/**", "Directory.Build.props", "Directory.Build.targets", "Directory.Packages.props", ".editorconfig", "global.json", ".github/workflows/dotnet.tests.yml", ".github/actions/setup-dotnet/action.yml" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
-  test:
+  format:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
     - uses: ./.github/actions/setup-dotnet
 
-    - name: Restore dependencies
-      run: dotnet restore
+    - name: Verify formatting
+      run: dotnet format "Lexi.slnx" --severity info --verify-no-changes
 
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        configuration: [ Debug, Release ]
+    steps:
+    - uses: actions/checkout@v7
+    - uses: ./.github/actions/setup-dotnet
+
+    # Tests Lexi.slnx — the library, its unit tests, and the Math/Predicate samples with their suites.
     - name: Build
-      run: dotnet build -c Debug --no-restore
+      run: dotnet build "Lexi.slnx" -c ${{ matrix.configuration }}
 
     - name: Test
-      run: dotnet test --no-build
+      run: dotnet test "Lexi.slnx" -c ${{ matrix.configuration }} --no-build
+
+    - name: Upload coverage report
+      if: always() && matrix.configuration == 'Debug'
+      uses: actions/upload-artifact@v7
+      with:
+        name: coverage-cobertura
+        path: tests/**/coverage.cobertura.xml
+        if-no-files-found: error

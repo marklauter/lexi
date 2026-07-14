@@ -1,5 +1,5 @@
 name: Setup .NET
-description: Install the .NET SDK and restore the NuGet package cache.
+description: Install the .NET SDK (pinned via global.json) and restore the NuGet package cache.
 
 runs:
   using: composite
@@ -7,12 +7,12 @@ runs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.0.x
+        global-json-file: global.json
 
     - name: Cache NuGet packages
       uses: actions/cache@v6
       with:
         path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Packages.props') }}
         restore-keys: |
           ${{ runner.os }}-nuget-

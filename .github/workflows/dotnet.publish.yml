@@ -3,9 +3,19 @@ name: .NET Publish
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to pack for a dry run (build/test/pack/upload only — no nuget push)"
+        required: false
+        default: "0.0.0-dryrun"
+
+concurrency:
+  group: publish-${{ github.event.release.tag_name || github.run_id }}
+  cancel-in-progress: false
+
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 jobs:
   test:
@@ -15,62 +25,57 @@ jobs:
     - uses: ./.github/actions/setup-dotnet
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore "Lexi.slnx"
 
     - name: Build
-      run: dotnet build -c Debug --no-restore
+      run: dotnet build "Lexi.slnx" -c Release --no-restore
 
     - name: Test
-      run: dotnet test --no-build
-
-  version:
-    needs: test
-    runs-on: ubuntu-latest
-    outputs:
-      PACKAGE_VERSION: ${{ steps.version-tag.outputs.package_version }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - name: Get Build Version
-        id: version-tag
-        run: |
-          current_tag=$(git tag --sort=committerdate | tail -1)
-          echo current tag: $current_tag
-          major=$(echo $current_tag | cut -d "." -f 1 | cut -d "v" -f 2)
-          minor=$(echo $current_tag | cut -d "." -f 2)
-          patch=$(echo $current_tag | cut -d "." -f 3)
-          package_version="$major.$minor.$patch"
-          echo "PACKAGE_VERSION=$package_version" >> $GITHUB_OUTPUT
+      run: dotnet test "Lexi.slnx" -c Release --no-build
 
   publish:
-    needs:
-    - test
-    - version
+    needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
     - uses: actions/checkout@v7
     - uses: ./.github/actions/setup-dotnet
 
-    - name: Echo Package Version
-      run: echo ${{ needs.version.outputs.PACKAGE_VERSION }}
+    - name: Resolve package version
+      env:
+        EVENT: ${{ github.event_name }}
+        TAG: ${{ github.event.release.tag_name }}
+        INPUT_VERSION: ${{ inputs.version }}
+      run: |
+        if [ "$EVENT" = "release" ]; then version="${TAG#v}"; else version="$INPUT_VERSION"; fi
+        [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] \
+          || { echo "::error::invalid version '$version' (event '$EVENT')"; exit 1; }
+        echo "Publishing version $version"
+        echo "PACKAGE_VERSION=$version" >> "$GITHUB_ENV"
 
     - name: Restore
-      working-directory: Lexi
-      run: dotnet restore
-
-    - name: Build
-      working-directory: Lexi
-      run: dotnet build --no-restore -c Release -p:Version=${{ needs.version.outputs.PACKAGE_VERSION }}
+      run: dotnet restore src/Lexi/Lexi.csproj
 
     - name: Pack
-      working-directory: Lexi
-      run: dotnet pack -c Release -o nuget -p:PackageVersion=${{ needs.version.outputs.PACKAGE_VERSION }} -p:Version=${{ needs.version.outputs.PACKAGE_VERSION }}
+      run: dotnet pack src/Lexi/Lexi.csproj -c Release --no-restore -o nuget -p:PackageVersion=$PACKAGE_VERSION -p:Version=$PACKAGE_VERSION
+
+    - name: Upload package artifacts
+      uses: actions/upload-artifact@v7
+      with:
+        name: nuget-packages
+        path: nuget/*
+        retention-days: 30
 
     - name: Publish to nuget.pkg.github.com
-      working-directory: Lexi
-      run: dotnet nuget push nuget/*.nupkg --skip-duplicate -k ${{ secrets.GITHUB_TOKEN }} -s https://nuget.pkg.github.com/marklauter/index.json
+      if: github.event_name == 'release'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push nuget/*.nupkg --skip-duplicate -k "$GITHUB_TOKEN" -s https://nuget.pkg.github.com/marklauter/index.json
 
     - name: Publish to api.nuget.org
-      working-directory: Lexi
-      run: dotnet nuget push nuget/*.nupkg --skip-duplicate -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+      if: github.event_name == 'release'
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push nuget/*.nupkg --skip-duplicate -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json

@@ -1,0 +1,48 @@
+<Project>
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<LangVersion>14</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<AnalysisMode>All</AnalysisMode>
+		<AnalysisLevel>latest-all</AnalysisLevel>
+		<AnalysisModeSecurity>All</AnalysisModeSecurity>
+		<IncludeSymbols>true</IncludeSymbols>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+		<!-- Reproducible builds + normalized SourceLink paths in packed binaries. On only in CI. -->
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<CollectCoverage>true</CollectCoverage>
+		<CoverletOutputFormat>cobertura</CoverletOutputFormat>
+		<!-- Exception types are plumbing; exclude from coverage to avoid noise. -->
+		<Exclude>[*]*Exception</Exclude>
+		<!-- Source-generated files are plumbing too. -->
+		<ExcludeByFile>**/obj/**/*.g.cs</ExcludeByFile>
+		<!-- Coverage ratchet: floors seeded at the measured 82.67/70.45/72.97 (line/branch/method) for the Lexi
+		     library. Raise only — never lower. The samples carry their own, lower floor (samples/Directory.Build.props). -->
+		<Threshold>82,70,72</Threshold>
+		<ThresholdType>line,branch,method</ThresholdType>
+		<ThresholdStat>total</ThresholdStat>
+		<!-- Test-project analyzer carve-outs, gated here rather than in per-assembly GlobalSuppressions:
+		     CA1707/IDE1006 - test method names use underscores (Method_Scenario_Outcome) by convention.
+		     IDE0079        - keeps the inline suppressions in the test code from being flagged as unnecessary.
+		     CA1515         - xUnit requires public test classes, so "make public types internal" does not apply.
+		     CA1028         - test token enums are uint to match Lexi's Symbol.TokenId.
+		     CA1062         - test methods are public only because xUnit requires it; their arguments come from
+		                      [InlineData]/[MemberData], not external callers, so null guards are dead code. The
+		                      scaffolding-csharp template draws the same line for non-packable projects. -->
+		<NoWarn>$(NoWarn);CA1707;IDE1006;IDE0079;CA1515;CA1028;CA1062</NoWarn>
+	</PropertyGroup>
+
+</Project>
