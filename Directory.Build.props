@@ -37,12 +37,8 @@
 		<!-- Test-project analyzer carve-outs, gated here rather than in per-assembly GlobalSuppressions:
 		     CA1707/IDE1006 - test method names use underscores (Method_Scenario_Outcome) by convention.
 		     IDE0079        - keeps the inline suppressions in the test code from being flagged as unnecessary.
-		     CA1515         - xUnit requires public test classes, so "make public types internal" does not apply.
-		     CA1028         - test token enums are uint to match Lexi's Symbol.TokenId.
-		     CA1062         - test methods are public only because xUnit requires it; their arguments come from
-		                      [InlineData]/[MemberData], not external callers, so null guards are dead code. The
-		                      scaffolding-csharp template draws the same line for non-packable projects. -->
-		<NoWarn>$(NoWarn);CA1707;IDE1006;IDE0079;CA1515;CA1028;CA1062</NoWarn>
+		     CA1515         - xUnit requires public test classes, so "make public types internal" does not apply. -->
+		<NoWarn>$(NoWarn);CA1707;IDE1006;IDE0079;CA1515</NoWarn>
 	</PropertyGroup>
 
 </Project>

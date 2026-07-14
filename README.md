@@ -2,9 +2,7 @@
 [![.NET Tests](https://github.com/marklauter/lexi/actions/workflows/dotnet.tests.yml/badge.svg)](https://github.com/marklauter/lexi/actions/workflows/dotnet.tests.yml)
 [![.NET Publish](https://github.com/marklauter/lexi/actions/workflows/dotnet.publish.yml/badge.svg)](https://github.com/marklauter/lexi/actions/workflows/dotnet.publish.yml)
 [![Nuget](https://img.shields.io/badge/Nuget-v2.2.2-blue)](https://www.nuget.org/packages/MSL.Lexi/)
-[![Nuget](https://img.shields.io/badge/.NET-6.0-blue)](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
-[![Nuget](https://img.shields.io/badge/.NET-7.0-blue)](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
-[![Nuget](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0/)
+[![Nuget](https://img.shields.io/badge/.NET-10.0-blue)](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 
 ##
 ![lexi logo](https://raw.githubusercontent.com/marklauter/lexi/main/images/lexi.png)
@@ -22,7 +20,7 @@ dotnet add package MSL.Lexi
 I've included two sample projects in the repo to demonstrate the lexer within a recursive descent parser. One is a simple math parser and the other is a predicate expression parser.
 Each project includes a parser library, a set of tests for the parser, and a REPL console application that allows you to interact with the parser.
 
-See [Math.Parser](https://github.com/marklauter/lexi/tree/main/Samples/Math) and [Predicate.Parser](https://github.com/marklauter/lexi/tree/main/Samples/Predicate) for working samples.
+See [Math.Parser](https://github.com/marklauter/lexi/tree/main/samples/Math) and [Predicate.Parser](https://github.com/marklauter/lexi/tree/main/samples/Predicate) for working samples.
 
 ### Sample Math.REPL Output
 ```console
