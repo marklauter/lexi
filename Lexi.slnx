@@ -1,0 +1,30 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/github-workflows/">
+    <File Path=".github/workflows/dotnet.publish.yml" />
+    <File Path=".github/workflows/dotnet.tests.yml" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Lexi/Lexi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Lexi.Tests/Lexi.Tests.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Math/Math.Parsing/Math.Parsing.csproj" />
+    <Project Path="samples/Math/Math.Parsing.Tests/Math.Parsing.Tests.csproj" />
+    <Project Path="samples/Math/Math.REPL/Math.REPL.csproj" />
+    <Project Path="samples/Predicate/Predicate.Parsing/Predicate.Parsing.csproj" />
+    <Project Path="samples/Predicate/Predicate.Parsing.Tests/Predicate.Parsing.Tests.csproj" />
+    <Project Path="samples/Predicate/Predicate.REPL/Predicate.REPL.csproj" />
+  </Folder>
+</Solution>

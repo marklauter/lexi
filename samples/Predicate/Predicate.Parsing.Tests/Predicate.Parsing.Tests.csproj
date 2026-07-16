@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- Scope coverage to the sample parser assembly only; the library has its own suite. -->
+		<Include>[Predicate.Parsing]*</Include>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Predicate.Parsing\Predicate.Parsing.csproj" />
+	</ItemGroup>
+
+</Project>

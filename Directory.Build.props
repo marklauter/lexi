@@ -1,0 +1,94 @@
+<Project>
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<LangVersion>14</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<AnalysisMode>All</AnalysisMode>
+		<AnalysisLevel>latest-all</AnalysisLevel>
+		<AnalysisModeSecurity>All</AnalysisModeSecurity>
+		<IncludeSymbols>true</IncludeSymbols>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<!-- Solution-wide analyzer carve-out:
+		     CA1028 enum storage should be Int32 : token ids are an unsigned concept. Lexi's public API is
+		            uint (Symbol.TokenId, Symbol.Is(uint)), and Pattern reserves the top two bits as flags -
+		            EndOfSource is 1U << 31, the sign bit, which has no non-negative int spelling. Token enums
+		            are declared : uint so they drop into Symbol.Is(uint) without a cast; that is the designed
+		            ergonomics, not an oversight. Signed storage would be wrong for the domain, so the rule is
+		            rejected rather than worked around. -->
+		<!--
+		     CA1008 enums should have a zero value : the token enums alias TokenIds constants, where 0 is already
+		            TokenIds.WHITE_SPACE - not a keyword, comparison operator, or logical operator. Each of these
+		            enums previously carried an `Error = 0` member that nothing ever constructed; it existed only
+		            to be rejected, and forced ToString() to throw (CA1065). Removing it made invalid states
+		            unrepresentable and ToString() total. CA1008 asks for that phantom state back, so it is
+		            rejected for the same reason CA1028 is.
+		-->
+		<NoWarn>$(NoWarn);CA1028;CA1008</NoWarn>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+		<!-- Reproducible builds + normalized SourceLink paths in packed binaries. On only in CI. -->
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<CollectCoverage>true</CollectCoverage>
+		<CoverletOutputFormat>cobertura</CoverletOutputFormat>
+		<!-- Exception types are plumbing; exclude from coverage to avoid noise. -->
+		<Exclude>[*]*Exception</Exclude>
+		<!-- Source-generated files are plumbing too. -->
+		<ExcludeByFile>**/obj/**/*.g.cs</ExcludeByFile>
+		<!-- Coverage ratchet: floors at the measured 100/97.72/100 (line/branch/method) for the Lexi library.
+		     Branch sits below 100 by one defensive tie-break arm in Lexer.CompareAndSwap (index < bestMatch.Index
+		     true-side) that ascending iteration order makes unreachable. Raise only — never lower. The samples carry
+		     their own, lower floor (samples/Directory.Build.props). -->
+		<Threshold>100,97,100</Threshold>
+		<ThresholdType>line,branch,method</ThresholdType>
+		<ThresholdStat>total</ThresholdStat>
+		<!-- Test-project analyzer carve-outs, gated here rather than in per-assembly GlobalSuppressions:
+		     CA1707/IDE1006 - test method names use underscores (Method_Scenario_Outcome) by convention.
+		     IDE0079        - keeps the inline suppressions in the test code from being flagged as unnecessary.
+		     CA1515         - xUnit requires public test classes, so "make public types internal" does not apply. -->
+		<NoWarn>$(NoWarn);CA1707;IDE1006;IDE0079;CA1515</NoWarn>
+	</PropertyGroup>
+
+	<!-- The xUnit v3 test stack + DI fixtures shared by every *.Tests project, hoisted here per writing-csharp's
+	     single-source-of-truth rule: a new test project inherits the stack instead of copying it. `Using` replaces
+	     the per-project GlobalUsings.cs. Project-specific test packages (ArchUnitNET, DI.Abstractions) stay local. -->
+	<ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+		<Using Include="Xunit" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="xunit.v3" />
+		<PackageReference Include="Xunit.DependencyInjection" />
+		<PackageReference Include="xunit.runner.visualstudio">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.collector">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.msbuild">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<!-- Every non-test project exposes its internals to its own .Tests peer. $(MSBuildProjectName) makes this
+	     self-describing, so each per-project declaration was an identical copy; hoisted to a single rule here. -->
+	<ItemGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
+		<InternalsVisibleTo Include="$(MSBuildProjectName).Tests" />
+	</ItemGroup>
+
+</Project>

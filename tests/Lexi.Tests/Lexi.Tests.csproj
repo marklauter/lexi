@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- Scope coverage to the Lexi production assembly only. -->
+		<Include>[Lexi]*</Include>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="sqlitecreate.txt" />
+		<Content Include="sqlitecreate.txt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Lexi.Tests-only: DI.Abstractions for the Startup fixture, ArchUnitNET for the architecture tests.
+		     The shared xUnit/coverlet stack lives in Directory.Build.props. -->
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+		<PackageReference Include="TngTech.ArchUnitNET" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Lexi\Lexi.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,12 +1,8 @@
-## Build Status
-[![.NET Tests](https://github.com/marklauter/lexi/actions/workflows/dotnet.tests.yml/badge.svg)](https://github.com/marklauter/lexi/actions/workflows/dotnet.tests.yml)
+﻿[![.NET Tests](https://github.com/marklauter/lexi/actions/workflows/dotnet.tests.yml/badge.svg)](https://github.com/marklauter/lexi/actions/workflows/dotnet.tests.yml)
 [![.NET Publish](https://github.com/marklauter/lexi/actions/workflows/dotnet.publish.yml/badge.svg)](https://github.com/marklauter/lexi/actions/workflows/dotnet.publish.yml)
-[![Nuget](https://img.shields.io/badge/Nuget-v2.2.2-blue)](https://www.nuget.org/packages/MSL.Lexi/)
-[![Nuget](https://img.shields.io/badge/.NET-6.0-blue)](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
-[![Nuget](https://img.shields.io/badge/.NET-7.0-blue)](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
-[![Nuget](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0/)
+[![NuGet](https://img.shields.io/nuget/v/MSL.Lexi?logo=nuget)](https://www.nuget.org/packages/MSL.Lexi/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-blue)](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/)
 
-##
 ![lexi logo](https://raw.githubusercontent.com/marklauter/lexi/main/images/lexi.png)
 
 # lexi
@@ -22,7 +18,7 @@ dotnet add package MSL.Lexi
 I've included two sample projects in the repo to demonstrate the lexer within a recursive descent parser. One is a simple math parser and the other is a predicate expression parser.
 Each project includes a parser library, a set of tests for the parser, and a REPL console application that allows you to interact with the parser.
 
-See [Math.Parser](https://github.com/marklauter/lexi/tree/main/Samples/Math) and [Predicate.Parser](https://github.com/marklauter/lexi/tree/main/Samples/Predicate) for working samples.
+See [Math.Parsing](https://github.com/marklauter/lexi/tree/main/samples/Math) and [Predicate.Parsing](https://github.com/marklauter/lexi/tree/main/samples/Predicate) for working samples.
 
 ### Sample Math.REPL Output
 ```console
@@ -77,7 +73,7 @@ predicate:>
 ## VocabularyBuilder Examples
  You specify the vocabulary with the `VocabularyBuilder` which returns a lexer from the `Build` method.
  
- Here's a sample from the `Math.Parser` project:
+ Here's a sample from the `Math.Parsing` project:
 ```csharp
 public static IServiceCollection AddParser(this IServiceCollection services)
 {
@@ -107,7 +103,7 @@ public static IServiceCollection AddParser(this IServiceCollection services)
 }
 ```
 
-The `Predicate.Parser` project works the same way:
+The `Predicate.Parsing` project works the same way:
 ```csharp
 public static IServiceCollection AddParser(this IServiceCollection services)
 {
@@ -152,17 +148,17 @@ public static IServiceCollection AddParser(this IServiceCollection services)
 ```
 
 ## Practical Parser Example
-The `Math.Parser` implements a classic term/factor recursive descent parser. The parser returns an expression tree that can be evaluated to get the result.
+The `Math.Parsing` implements a classic term/factor recursive descent parser. The parser returns an expression tree that can be evaluated to get the result.
 We use the lexer to get the next token with calls to one of the `Lexer.NextMatch` overloads as required. 
 
 ```csharp
 using Lexi;
-using Math.Parser.Exceptions;
-using Math.Parser.Expressions;
+using Math.Parsing.Exceptions;
+using Math.Parsing.Expressions;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
-namespace Math.Parser;
+namespace Math.Parsing;
 
 public sealed class Parser(Lexer lexer)
 {

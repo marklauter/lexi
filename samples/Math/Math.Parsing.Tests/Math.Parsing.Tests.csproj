@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<!-- Scope coverage to the sample parser assembly only; the library has its own suite. -->
+		<Include>[Math.Parsing]*</Include>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Math.Parsing\Math.Parsing.csproj" />
+	</ItemGroup>
+
+</Project>
