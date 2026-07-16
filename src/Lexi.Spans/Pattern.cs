@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace Lexi.Spans;
@@ -43,6 +44,7 @@ public sealed class Pattern
     public static Pattern New(string pattern, uint tokenId) =>
         new(pattern, tokenId, DefaultRegexOptions);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Symbol Match(ReadOnlySpan<char> source, int offset)
     {
         // \G-anchored at startat: the first yielded match is at offset, or there is none. No Match allocation.

@@ -105,6 +105,34 @@ dissolves the ref-struct wall, so tokens become collectible/streamable (`List<Sy
 across `await`). That API change is the real prize; the zero-alloc read path and the extra speed are what make
 it free to take.
 
+### Follow-up — can polish push span-first past ~27%?
+
+**Question:** the two changes are already both present in the exp-2 span arm (`Lexi.Spans.Pattern` uses
+`EnumerateMatches` *and* the span-first types), so ~27% is "both" combined, not two wins that stack. Is there
+any further headroom from bringing the prototype up to the shipping lexer's `[MethodImpl(AggressiveInlining)]`
+discipline (which `Lexi.Spans` originally lacked entirely)?
+
+Added `AggressiveInlining` to the span-first hot path (`Source` ctor/`Slice`, `Symbol.Is`, `Pattern.Match`,
+`Lexer.NextMatch`/`SkipIgnored`) and re-ran exp 2:
+
+| Method             | Repeats | Mean      | Ratio | Allocated | Alloc Ratio |
+|------------------- |-------- |----------:|------:|----------:|------------:|
+| ShippingReadSymbol |   1,000 |  2.422 ms |  1.00 | 5,552,000 B |      1.00 |
+| SpanSlice (inlined)|   1,000 |  1.751 ms |  0.72 |         0 B |      0.00 |
+| ShippingReadSymbol |  10,000 | 24.097 ms |  1.00 | 55,520,000 B |     1.00 |
+| SpanSlice (inlined)|  10,000 | 17.886 ms |  0.74 |         0 B |      0.00 |
+
+**Result: no.** The ratio holds at **0.72–0.74** — indistinguishable from the pre-inlining 0.73–0.74. ~27% is
+the ceiling for this algorithm, and inlining is within measurement noise, because the workload is **regex-
+bound**: both arms perform the *same* number of `\G`-anchored regex operations per token (one whitespace skip
++ one per match pattern until one wins), so wall-clock is dominated by the regex engine, not by the token/slice
+plumbing that inlining touches. The span-first win is entirely the eliminated allocation and its GC pressure;
+the compute is unchanged. Beating ~27% would require *reducing regex work* — e.g. a single combined
+alternation regex (but `ValueMatch` exposes no group id, so recovering token identity forces the allocating
+`regex.Match` back in) or replacing the regex engine with a hand-rolled character scanner. Both are
+architecture changes well beyond "apply the swap + span types", and out of scope for this spike. The
+inlining is kept anyway as promotion-prep — it matches the shipping lexer's discipline and does no harm.
+
 ## Decision
 
 **Do both, sequenced — the non-breaking swap now, the span-first break for v3.**

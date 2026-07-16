@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Lexi.Spans;
 
 /// <summary>
@@ -20,5 +22,6 @@ public readonly record struct Symbol(
     public bool IsEndOfSource => (TokenId & Pattern.EndOfSource) != 0;
 
     /// <summary>Returns true if the passed token id equals this symbol's token id.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Is(uint tokenId) => TokenId == tokenId;
 }

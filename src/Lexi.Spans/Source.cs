@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Lexi.Spans;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace Lexi.Spans;
 /// <b>only</b> here — never inside a <see cref="Symbol"/> — so only <see cref="Source"/> (and anything
 /// that holds it) carries the ref-struct constraint. Tokens leave the lexer as plain structs.
 /// </summary>
+[method: MethodImpl(MethodImplOptions.AggressiveInlining)]
 public readonly ref struct Source(ReadOnlySpan<char> text)
 {
     /// <summary>The underlying span.</summary>
@@ -14,10 +17,12 @@ public readonly ref struct Source(ReadOnlySpan<char> text)
     public int Length => Span.Length;
 
     /// <summary>Creates a source over the given string's span.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Source FromString(string text) =>
         new((text ?? throw new ArgumentNullException(nameof(text))).AsSpan());
 
     /// <summary>Returns the span slice a symbol names. Text is extracted on demand, not carried by the token.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<char> Slice(Symbol symbol) =>
         Span.Slice(symbol.Offset, symbol.Length);
 }

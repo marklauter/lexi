@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Lexi.Spans;
 
 /// <summary>
@@ -16,6 +18,7 @@ public sealed class Lexer(
         ?? throw new ArgumentNullException(nameof(ignorePatterns));
 
     /// <summary>Returns the token at or after <paramref name="offset"/>.</summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Symbol NextMatch(Source source, int offset)
     {
         var span = source.Span;
@@ -54,6 +57,7 @@ public sealed class Lexer(
         return best;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int SkipIgnored(ReadOnlySpan<char> span, int offset)
     {
         var patterns = ignorePatterns;
