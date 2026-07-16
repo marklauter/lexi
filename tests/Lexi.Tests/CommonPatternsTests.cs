@@ -23,7 +23,7 @@ public sealed class CommonPatternsTests
         ArgumentNullException.ThrowIfNull(regex);
         ArgumentNullException.ThrowIfNull(input);
 
-        Assert.False(regex.Match(input).Success);
+        Assert.False(regex.IsMatch(input));
     }
 
     [Theory]
