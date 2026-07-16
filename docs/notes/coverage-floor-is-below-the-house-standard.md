@@ -5,7 +5,7 @@ tags: [note, todo, lexi, coverage, testing]
 created: 2026-07-14
 priority: medium
 effort: high
-status: resolved
+status: closed
 ---
 
 > **Resolved 2026-07-16.** Tests written across the whole system; floors ratcheted to measured and holding.

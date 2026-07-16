@@ -5,7 +5,7 @@ tags: [note, todo, lexi, api, design, breaking-change]
 created: 2026-07-15
 priority: medium
 effort: low
-status: resolved
+status: closed
 ---
 
 > **Resolved 2026-07-16 via option 2.** Both implicit operators removed from `src/Lexi/Source.cs`; `Lexer` gained a

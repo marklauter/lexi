@@ -5,7 +5,7 @@ tags: [note, todo, lexi, build, canon, house-standard]
 created: 2026-07-14
 priority: low
 effort: low
-status: resolved
+status: closed
 ---
 
 > **Resolved 2026-07-16.** Mark chose to hoist (template pattern, and writing-csharp's single-source-of-truth
