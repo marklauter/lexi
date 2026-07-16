@@ -3,10 +3,12 @@ using System.Runtime.CompilerServices;
 namespace Lexi;
 
 /// <summary>
-/// A lexer named Lexi.
+/// Scans source text into tokens using a set of match patterns while skipping a set of ignore patterns.
+/// Each call to <see cref="NextMatch(Source)"/> returns one <see cref="MatchResult"/>; feed its
+/// <see cref="MatchResult.Source"/> back in to read the next token.
 /// </summary>
-/// <param name="matchPatterns"><see cref="Pattern"/></param>
-/// <param name="ignorePatterns"><see cref="Pattern"/></param>
+/// <param name="matchPatterns">The <see cref="Pattern"/> set the lexer matches into tokens.</param>
+/// <param name="ignorePatterns">The <see cref="Pattern"/> set the lexer skips between tokens.</param>
 public sealed class Lexer(
     Pattern[] matchPatterns,
     Pattern[] ignorePatterns)
@@ -43,6 +45,12 @@ public sealed class Lexer(
     /// </summary>
     /// <param name="source"><see cref="Source"/></param>
     /// <returns><see cref="MatchResult"/></returns>
+    /// <remarks>
+    /// There are three outcomes. At the end of the source, the symbol carries
+    /// <see cref="Pattern.EndOfSource"/>. On a successful match, the symbol is the longest match, with
+    /// ties broken toward the lowest pattern index. On failure, the symbol carries
+    /// <see cref="Pattern.NoMatch"/> and spans the single offending character without advancing the offset.
+    /// </remarks>
     public MatchResult NextMatch(Source source)
     {
         if (source.IsEndOfSource)
@@ -82,8 +90,8 @@ public sealed class Lexer(
         }
 
         // On failure, span the single offending character (offset < span.Length is guaranteed by the
-        // end-of-source check above) so the caller can read *what* broke, not just where. The offset
-        // itself does not advance — recovery is the caller's choice.
+        // end-of-source check above) so the caller can read the character that broke the lex. The offset
+        // itself does not advance; recovery is the caller's choice.
         return best.IsMatch
             ? new(new Source(span, offset + best.Length), best)
             : new(new Source(span, offset), new Symbol(offset, 1, Pattern.NoMatch));

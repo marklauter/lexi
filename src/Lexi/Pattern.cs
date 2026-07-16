@@ -13,40 +13,40 @@ namespace Lexi;
 public sealed class Pattern
 {
     /// <summary>
-    /// const end of source token id
+    /// Reserved token id marking the end of the source. Equal to <c>1U &lt;&lt; 31</c>.
     /// </summary>
     public const uint EndOfSource = 1U << 31;
 
     /// <summary>
-    /// const lex error token id
+    /// Reserved token id marking a lexer error where no pattern matched. Equal to <c>1U &lt;&lt; 30</c>.
     /// </summary>
     public const uint NoMatch = 1U << 30;
 
     /// <summary>
     /// Creates a new pattern.
     /// </summary>
-    /// <param name="pattern">The regular expression to be converted into a <see cref="Regex"/></param>
-    /// <param name="tokenId">The token identifier for the pattern.</param>
-    /// <returns></returns>
+    /// <param name="pattern">The regular expression to be converted into a <see cref="Regex"/>.</param>
+    /// <param name="tokenId">The token identifier for the pattern. Must be less than <see cref="NoMatch"/>.</param>
+    /// <returns>The new <see cref="Pattern"/>.</returns>
     public static Pattern New(string pattern, uint tokenId) =>
         new(pattern, tokenId);
 
     /// <summary>
     /// Creates a new pattern.
     /// </summary>
-    /// <param name="pattern">The regular expression to be converted into a <see cref="Regex"/></param>
-    /// <param name="tokenId">The token identifier for the pattern.</param>
-    /// <param name="regexOptions"><see cref="RegexOptions"/></param>
-    /// <returns></returns>
+    /// <param name="pattern">The regular expression to be converted into a <see cref="Regex"/>.</param>
+    /// <param name="tokenId">The token identifier for the pattern. Must be less than <see cref="NoMatch"/>.</param>
+    /// <param name="regexOptions">The <see cref="RegexOptions"/> applied when compiling the pattern.</param>
+    /// <returns>The new <see cref="Pattern"/>.</returns>
     public static Pattern New(string pattern, uint tokenId, RegexOptions regexOptions) =>
         new(pattern, tokenId, regexOptions);
 
     /// <summary>
     /// Creates a new pattern.
     /// </summary>
-    /// <param name="regex"><see cref="Regex"/></param>
-    /// <param name="tokenId">The token identifier for the pattern.</param>
-    /// <returns></returns>
+    /// <param name="regex">The <see cref="Regex"/> used to match the token.</param>
+    /// <param name="tokenId">The token identifier for the pattern. Must be less than <see cref="NoMatch"/>.</param>
+    /// <returns>The new <see cref="Pattern"/>.</returns>
     public static Pattern New(Regex regex, uint tokenId) =>
         new(regex, tokenId);
 

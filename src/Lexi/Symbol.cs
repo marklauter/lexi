@@ -4,11 +4,10 @@ using System.Runtime.CompilerServices;
 namespace Lexi;
 
 /// <summary>
-/// A token's position and id — offset, length, token id. A <b>plain</b> value type (a
-/// <c>readonly record struct</c>, not a <c>ref struct</c>): it holds no span, so tokens are freely
-/// collectible and streamable (<c>List&lt;Symbol&gt;</c>, <c>IEnumerable&lt;Symbol&gt;</c>, across
-/// <c>await</c>) and get value equality for free. The span lives only in <see cref="Source"/>; decoupling
-/// "where the token is" from "what the text is" is what dissolves the ref-struct wall.
+/// A token's position and id: offset, length, and token id. A <c>readonly record struct</c> that holds
+/// no span, so tokens are collectible and streamable (<c>List&lt;Symbol&gt;</c>,
+/// <c>IEnumerable&lt;Symbol&gt;</c>, across <c>await</c>) and carry value equality. The span lives only in
+/// <see cref="Source"/>, which is a <c>ref struct</c> and cannot cross those boundaries.
 /// </summary>
 [DebuggerDisplay("{Offset}, {Length}, {TokenId}")]
 public readonly record struct Symbol
@@ -50,7 +49,8 @@ public readonly record struct Symbol
     public uint TokenId { get; }
 
     /// <summary>
-    /// Returns true if length > 0.
+    /// Returns true when the symbol is a real match: not flagged <see cref="Pattern.NoMatch"/>, positive
+    /// length, and not end of source.
     /// </summary>
     public bool IsMatch => (TokenId & Pattern.NoMatch) == 0 && Length > 0 && !IsEndOfSource;
 
@@ -65,8 +65,8 @@ public readonly record struct Symbol
     /// <summary>
     /// Returns true if the passed token id equals the symbol token id.
     /// </summary>
-    /// <param name="tokenId"></param>
-    /// <returns></returns>
+    /// <param name="tokenId">The token id to compare against <see cref="TokenId"/>.</param>
+    /// <returns><see langword="true"/> if <paramref name="tokenId"/> equals <see cref="TokenId"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Is(uint tokenId) => TokenId == tokenId;
 }

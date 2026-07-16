@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 namespace Lexi;
 
 /// <summary>
-/// The source text and current offset of the code being analyzed. A <c>ref struct</c> over a
-/// <see cref="ReadOnlySpan{Char}"/>: the span lives <b>only</b> here — never inside a <see cref="Symbol"/> —
-/// so text is extracted on demand via <see cref="ReadSymbol"/> (a span, no copy) rather than carried by the
-/// token. Tokens leave the lexer as plain, collectible <see cref="Symbol"/> values.
+/// The source text and current offset of the code being analyzed. A <c>readonly ref struct</c> over a
+/// <see cref="ReadOnlySpan{Char}"/>. The span lives only here, never inside a <see cref="Symbol"/>.
+/// Call <see cref="ReadSymbol"/> to extract a token's text as a span with no copy. Tokens leave the lexer
+/// as plain, collectible <see cref="Symbol"/> values.
 /// </summary>
 [DebuggerDisplay("Offset = {Offset}")]
 public readonly ref struct Source
@@ -19,6 +19,9 @@ public readonly ref struct Source
     /// </summary>
     /// <param name="text"><see cref="ReadOnlySpan{Char}"/></param>
     /// <param name="offset"><see cref="int"/></param>
+    /// <remarks>
+    /// A negative <paramref name="offset"/> is clamped to zero.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Source(ReadOnlySpan<char> text, int offset)
     {
@@ -80,10 +83,15 @@ public readonly ref struct Source
     public string Remaining() => text[Offset..].ToString();
 
     /// <summary>
-    /// Reads the symbol's text from the source as a span — no substring is allocated.
+    /// Reads the symbol's text from the source as a span. No substring is allocated for a matched token.
     /// </summary>
     /// <param name="symbol"><see cref="Symbol"/></param>
     /// <returns><see cref="ReadOnlySpan{Char}"/></returns>
+    /// <remarks>
+    /// A matched symbol returns the source slice at its offset and length. An end-of-source symbol returns
+    /// <c>"EOF"</c>. A <see cref="Pattern.NoMatch"/> symbol returns a lexer-error string. When the offset is
+    /// within the source the string names the offending character; otherwise it reports the offset alone.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<char> ReadSymbol(ref readonly Symbol symbol) => symbol.IsEndOfSource
         ? "EOF"
