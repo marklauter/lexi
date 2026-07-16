@@ -3,10 +3,24 @@ title: Apply Match→EnumerateMatches now (non-breaking); schedule span-first fo
 summary: A/B benchmarks settle the span-first spike. The non-breaking regex-API swap (regex.Match → regex.EnumerateMatches) captures the entire allocation headline — 5.2 MB / 52 MB → 0 B — plus ~12% speed, with no public-surface change; apply it to the shipping lexer now. The full span-first rewrite reaches a true end-to-end 0 B and ~27% faster, but its real justification is collectible/streamable tokens (Symbol as a plain record struct), so schedule it deliberately for v3 rather than rushing it for speed.
 tags: [note, lexi, performance, regex, span, semver, decision]
 created: 2026-07-16
+updated: 2026-07-16
 priority: medium
 effort: medium
-status: open
+status: closed
 ---
+
+> **Update (2026-07-16): executed as a single breaking change.** Mark directed doing *both* changes at once
+> rather than the sequenced swap-now/span-first-later plan below. Span-first is promoted into `src/Lexi` on
+> `spike/span-first-lexer` (`Pattern.Match` → `EnumerateMatches` over `ReadOnlySpan<char>`; `Source` a ref
+> struct over the span with a span-returning `ReadSymbol`; `Symbol` a plain `readonly record struct`; `Lexer`
+> keeps the `MatchResult` chaining API and all `NextMatch` overloads). The ergonomic API was kept so consumers
+> barely moved: the Math parser is unchanged, the Predicate parser materializes span→string only at the three
+> `FromString` sites that build string-holding AST nodes, and tests bind to xUnit's `ReadOnlySpan<char>`
+> assert overloads. All 253 tests pass; the 100% line/method coverage gate and `format --severity info` are
+> green. Release and semver are Mark's to trigger — the break sets the floor per
+> [[lexi-3-0-0-is-a-breaking-release]]. The prototype `src/Lexi.Spans` and `bench/` are now superseded by the
+> promotion and can be removed when the spike branch is reconciled. Rationale and numbers below stand as the
+> record of *why*.
 
 # Apply Match→EnumerateMatches now (non-breaking); schedule span-first for v3
 
