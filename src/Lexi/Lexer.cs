@@ -88,15 +88,25 @@ public sealed class Lexer(
 
     private int NextOffset(ReadOnlySpan<char> span, int offset)
     {
+        // Loop until a full pass advances nothing: a single pass can't skip interleaved runs of
+        // different ignorables (e.g. whitespace then a comment then whitespace). Each match advances
+        // by at least one char (Symbol.IsMatch requires Length > 0), so this always terminates.
         var patterns = ignorePatterns;
-        foreach (var pattern in patterns)
+        bool advanced;
+        do
         {
-            var match = pattern.Match(span, offset);
-            if (match.IsMatch)
+            advanced = false;
+            foreach (var pattern in patterns)
             {
-                offset += match.Length;
+                var match = pattern.Match(span, offset);
+                if (match.IsMatch)
+                {
+                    offset += match.Length;
+                    advanced = true;
+                }
             }
         }
+        while (advanced);
 
         return offset;
     }

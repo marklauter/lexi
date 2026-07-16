@@ -106,6 +106,19 @@ public sealed class LexerTests
     }
 
     [Fact]
+    public void NextMatch_SkipsInterleavedIgnorableRuns()
+    {
+        var lexer = new Lexer(
+            [Pattern.New(@"[a-z]+", Word)],
+            [Pattern.New(@" +", Space), Pattern.New(@"\r?\n", NewLine)]);
+
+        var match = lexer.NextMatch(" \n abc");
+
+        Assert.Equal(Word, match.Symbol.TokenId);
+        Assert.Equal("abc", match.Source.ReadSymbol(in match.Symbol).ToString());
+    }
+
+    [Fact]
     public void NextMatch_TrailingIgnoredContent_ReturnsEndOfSource()
     {
         var lexer = new Lexer([Pattern.New(@"[a-z]+", Word)], [Pattern.New(@" +", Space)]);
