@@ -58,28 +58,14 @@ public readonly ref struct Source(
             : text[symbol.Offset..(symbol.Offset + symbol.Length)];
 
     /// <summary>
-    /// Implicit operator converts source to string.
-    /// </summary>
-    /// <param name="script"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator string(Source script) => script.text;
-
-    /// <summary>
-    /// Returns the full source text. Named alternate for the implicit <see cref="Source"/> to <see cref="string"/> conversion.
+    /// Returns the full source text.
     /// </summary>
     /// <returns><see cref="string"/></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() => text;
 
     /// <summary>
-    /// Implicit operator converts string to source with zero offset.
-    /// </summary>
-    /// <param name="source"></param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Source(string source) => new(source);
-
-    /// <summary>
-    /// Creates a source from the text with zero offset. Named alternate for the implicit <see cref="string"/> to <see cref="Source"/> conversion.
+    /// Creates a source from the text with zero offset.
     /// </summary>
     /// <param name="source"><see cref="string"/></param>
     /// <returns><see cref="Source"/></returns>

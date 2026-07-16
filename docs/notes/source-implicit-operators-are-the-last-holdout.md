@@ -5,8 +5,15 @@ tags: [note, todo, lexi, api, design, breaking-change]
 created: 2026-07-15
 priority: medium
 effort: low
-status: open
+status: resolved
 ---
+
+> **Resolved 2026-07-16 via option 2.** Both implicit operators removed from `src/Lexi/Source.cs`; `Lexer` gained a
+> `NextMatch(string)` overload so `lexer.NextMatch("text")` still works without the ambient string↔Source hazard.
+> Internal lean points fixed: `Lexer.NextMatch` now uses `source.ToString()` and `NextOffset` hoists the text once
+> and passes it to `Pattern.Match`. `Source.ToString()`/`FromString` remain as the explicit conversions. Breaking
+> change — lands with the `v3.0.0` release tag (version is derived from the GitHub release tag, nothing to bump
+> in-repo). See [[lexi-3-0-0-is-a-breaking-release]].
 
 # Source's implicit operators are the last holdout
 

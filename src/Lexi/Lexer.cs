@@ -18,7 +18,20 @@ public sealed class Lexer(
         ?? throw new ArgumentNullException(nameof(ignorePatterns));
 
     /// <summary>
-    /// Returns the next match from the source of the previous match. 
+    /// Returns the first match from the source text, starting at offset zero.
+    /// </summary>
+    /// <param name="source"><see cref="string"/></param>
+    /// <returns><see cref="MatchResult"/></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public MatchResult NextMatch(string source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        return NextMatch(Source.FromString(source));
+    }
+
+    /// <summary>
+    /// Returns the next match from the source of the previous match.
     /// </summary>
     /// <param name="matchResult"><see cref="MatchResult"/></param>
     /// <returns><see cref="MatchResult"/></returns>
@@ -41,7 +54,7 @@ public sealed class Lexer(
 
         // Dragon book says perform all match tests.
         // Then return best match based on length and pattern set index.
-        var text = (string)source;
+        var text = source.ToString();
         var bestMatch = new SymbolMatch(new(offset, 0, Pattern.NoMatch), int.MaxValue);
         var patterns = matchPatterns;
         var length = patterns.Length;
@@ -69,11 +82,12 @@ public sealed class Lexer(
     private int NextOffset(Source source)
     {
         var offset = source.Offset;
+        var text = source.ToString();
 
         var patterns = ignorePatterns;
         foreach (var pattern in patterns)
         {
-            var match = pattern.Match(source, offset);
+            var match = pattern.Match(text, offset);
             if (match.IsMatch)
             {
                 offset += match.Length;

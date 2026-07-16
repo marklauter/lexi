@@ -19,6 +19,26 @@ public sealed class LexerTests
         Assert.Throws<ArgumentNullException>(() => new Lexer([], null!));
 
     [Fact]
+    public void NextMatch_StringOverload_MatchesFromOffsetZero()
+    {
+        var lexer = new Lexer([Pattern.New(@"[a-z]+", Word)], []);
+
+        var match = lexer.NextMatch("abc");
+
+        Assert.Equal(Word, match.Symbol.TokenId);
+        Assert.Equal(0, match.Symbol.Offset);
+        Assert.Equal("abc", match.Source.ReadSymbol(in match.Symbol));
+    }
+
+    [Fact]
+    public void NextMatch_StringOverload_NullSource_Throws()
+    {
+        var lexer = new Lexer([Pattern.New(@"[a-z]+", Word)], []);
+
+        _ = Assert.Throws<ArgumentNullException>(() => lexer.NextMatch((string)null!));
+    }
+
+    [Fact]
     public void NextMatch_AtEndOfSource_ReturnsEndOfSourceSymbol()
     {
         var lexer = new Lexer([Pattern.New(@"[a-z]+", Word)], []);

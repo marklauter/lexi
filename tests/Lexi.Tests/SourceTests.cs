@@ -75,25 +75,6 @@ public sealed class SourceTests
     }
 
     [Fact]
-    public void ImplicitOperator_StringToSource_ZeroOffset()
-    {
-        Source source = "abcdef";
-
-        Assert.Equal(0, source.Offset);
-        Assert.Equal("abcdef", source.ToString());
-    }
-
-    [Fact]
-    public void ImplicitOperator_SourceToString_ReturnsFullText()
-    {
-        var source = new Source("abcdef", 3);
-
-        string text = source;
-
-        Assert.Equal("abcdef", text);
-    }
-
-    [Fact]
     public void ReadSymbol_EndOfSource_ReturnsEof()
     {
         var source = new Source("abc");
