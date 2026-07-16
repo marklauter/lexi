@@ -81,12 +81,53 @@ elimination — not the speedup — is the headline, and it costs nothing.
   swap. That gap is what the breaking v3 change has to justify.
 
 ### Result 2
-_(to be filled: paste the BDN summary table + one-paragraph takeaway)_
+
+Full job, `[MemoryDiagnoser]`, net10.0, Release. Correctness gate passed (byte-for-byte identical extracted
+text, hence identical content hash). Both arms tokenize **and** read each token's text.
+
+| Method             | Repeats | Mean      | Ratio | Allocated  | Alloc Ratio |
+|------------------- |-------- |----------:|------:|-----------:|------------:|
+| ShippingReadSymbol |   1,000 |  2.426 ms |  1.00 |  5,552,000 B |      1.00 |
+| SpanSlice          |   1,000 |  1.779 ms |  0.73 |          0 B |      0.00 |
+| ShippingReadSymbol |  10,000 | 24.143 ms |  1.00 | 55,520,000 B |      1.00 |
+| SpanSlice          |  10,000 | 17.967 ms |  0.74 |          0 B |      0.00 |
+
+**Takeaway:** end-to-end, span-first is **0 B** (from 5.55 MB / 55.5 MB) and **~27% faster** (ratio
+0.73–0.74). Decompose the baseline allocation: ~5.2 MB / 52 MB is the per-pattern-per-token `Match` object
+(the part exp 1's cheap swap already kills), and the extra ~0.35 MB / 3.5 MB is the substring `ReadSymbol`
+allocates per token on the read path. The cheap swap **cannot** remove that residual — it keeps the `string`
+surface, so a text-reading consumer still allocates a substring per token. Only the span rewrite's `Slice`
+(a `ReadOnlySpan<char>`, no copy) takes the read path to a true zero. The marginal value of the break over
+the cheap swap is therefore: (a) the last ~6% of allocation that lives on the read path → 0 B, and (b) the
+extra speed — the end-to-end ratio 0.73 vs the cheap swap's tokenize-only 0.87, because `Slice` never copies.
+The number the break most has to justify, though, isn't in this table: making `Symbol` a plain record struct
+dissolves the ref-struct wall, so tokens become collectible/streamable (`List<Symbol>`, `IEnumerable<Symbol>`,
+across `await`). That API change is the real prize; the zero-alloc read path and the extra speed are what make
+it free to take.
 
 ## Decision
 
-_(to be filled after both: does span-first earn the break, or is the non-breaking EnumerateMatches swap the
-right move for now?)_
+**Do both, sequenced — the non-breaking swap now, the span-first break for v3.**
+
+1. **Apply `Match → EnumerateMatches` to the shipping lexer now (non-breaking).** Exp 1 shows this captures
+   the entire headline — the per-pattern-per-token `Match` allocation (5.2 MB / 52 MB → **0 B**) — plus
+   ~12–13% speed, with *no* change to the public surface. It is the same `string` in, the same token out, the
+   same algorithm; the only edit is one line in `Pattern.Match`. There is no reason to defer a pure win that
+   costs nothing. This is the immediate move.
+
+2. **Span-first earns the v3 break, but on the strength of the API, not raw speed.** Exp 2 shows the full
+   rewrite reaches a true end-to-end **0 B** and **~27%** faster. But once the cheap swap is in, the
+   *marginal* microbench delta of the break is modest: the extra ~6% of allocation that lives on the read
+   path (the `ReadSymbol` substring the `string` API can't avoid) and roughly another ~14 points of speed
+   from `Slice` not copying. What actually justifies a breaking change is the **type ergonomics**: `Symbol`
+   as a plain `readonly record struct` carries no span, so tokens become collectible and streamable
+   (`List<Symbol>`, `IEnumerable<Symbol>`, across `await`) — the ref-struct wall that blocks every
+   token-buffering consumer is gone. That is a design-level improvement worth a major version; the zero-alloc
+   read path and the added speed are what make taking it free rather than a trade-off.
+
+**Net:** ship the cheap swap immediately as a patch/minor; schedule span-first deliberately for v3 with the
+collectible-token API as its stated rationale, backed by the end-to-end zero-alloc + ~27% numbers above. Do
+not rush the break for speed alone — the swap already banks the allocation headline.
 
 Then **promote this decision into a first-class note** under `docs/notes/` (the repo's current-state memory)
 so it's findable without reading the whole journal — a short note stating the recommendation, the numbers that
