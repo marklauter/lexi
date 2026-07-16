@@ -18,6 +18,15 @@ public sealed class SourceTests
     }
 
     [Fact]
+    public void Constructor_SpanOverload_DefaultsOffsetToZero()
+    {
+        var source = new Source("abc".AsSpan());
+
+        Assert.Equal(0, source.Offset);
+        Assert.Equal("abc", source.ToString());
+    }
+
+    [Fact]
     public void Constructor_NegativeOffset_ClampsToZero()
     {
         var source = new Source("abc", -5);
@@ -84,12 +93,21 @@ public sealed class SourceTests
     }
 
     [Fact]
-    public void ReadSymbol_NoMatch_ReturnsLexerError()
+    public void ReadSymbol_NoMatch_NamesTheOffendingCharacter()
     {
         var source = new Source("abc");
-        var symbol = new Symbol(2, 0, Pattern.NoMatch);
+        var symbol = new Symbol(2, 1, Pattern.NoMatch);
 
-        Assert.Equal("lexer error at offset: 2", source.ReadSymbol(in symbol));
+        Assert.Equal("lexer error at offset 2: unexpected 'c'", source.ReadSymbol(in symbol));
+    }
+
+    [Fact]
+    public void ReadSymbol_NoMatch_OffsetOutOfRange_ReturnsPlainError()
+    {
+        var source = new Source("abc");
+        var symbol = new Symbol(3, 0, Pattern.NoMatch);
+
+        Assert.Equal("lexer error at offset: 3", source.ReadSymbol(in symbol));
     }
 
     [Fact]

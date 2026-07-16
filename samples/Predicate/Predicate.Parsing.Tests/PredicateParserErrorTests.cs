@@ -39,6 +39,9 @@ public sealed class PredicateParserErrorTests(Parser parser)
     [InlineData("from T where x = and")]     // logical operator at value position
     [InlineData("from T where (x = 1 y")]    // parenthetical not closed by ')'
     [InlineData("from T where x = 1 nope")]  // trailing token is neither skip nor take
+    [InlineData("from T where x = 1 where")]  // trailing keyword is neither skip nor take
+    [InlineData("from T where x = 1 skip 5 nope")]        // trailing token after skip
+    [InlineData("from T where x = 1 skip 5 take 9 nope")] // trailing token after take
     [InlineData("from T where x = 1 skip x")] // skip value is not numeric
     [InlineData("from T where x = 1 take x")] // take value is not numeric
     public void Parse_UnexpectedToken_ThrowsUnexpectedToken(string source) =>

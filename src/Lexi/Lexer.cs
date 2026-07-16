@@ -1,12 +1,14 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace Lexi;
 
 /// <summary>
-/// A lexer named Lexi.
+/// Scans source text into tokens using a set of match patterns while skipping a set of ignore patterns.
+/// Each call to <see cref="NextMatch(Source)"/> returns one <see cref="MatchResult"/>; feed its
+/// <see cref="MatchResult.Source"/> back in to read the next token.
 /// </summary>
-/// <param name="matchPatterns"><see cref="Pattern"/></param>
-/// <param name="ignorePatterns"><see cref="Pattern"/></param>
+/// <param name="matchPatterns">The <see cref="Pattern"/> set the lexer matches into tokens.</param>
+/// <param name="ignorePatterns">The <see cref="Pattern"/> set the lexer skips between tokens.</param>
 public sealed class Lexer(
     Pattern[] matchPatterns,
     Pattern[] ignorePatterns)
@@ -27,7 +29,7 @@ public sealed class Lexer(
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        return NextMatch(Source.FromString(source));
+        return NextMatch(new Source(source));
     }
 
     /// <summary>
@@ -43,71 +45,80 @@ public sealed class Lexer(
     /// </summary>
     /// <param name="source"><see cref="Source"/></param>
     /// <returns><see cref="MatchResult"/></returns>
+    /// <remarks>
+    /// There are three outcomes. At the end of the source, the symbol carries
+    /// <see cref="Pattern.EndOfSource"/>. On a successful match, the symbol is the longest match, with
+    /// ties broken toward the lowest pattern index. On failure, the symbol carries
+    /// <see cref="Pattern.NoMatch"/> and spans the single offending character without advancing the offset.
+    /// </remarks>
     public MatchResult NextMatch(Source source)
     {
         if (source.IsEndOfSource)
         {
-            return new(source, new(source.Offset, 0, Pattern.EndOfSource));
+            return new(source, new Symbol(source.Offset, 0, Pattern.EndOfSource));
         }
 
-        var offset = NextOffset(source);
+        var span = source.Span;
+        var offset = NextOffset(span, source.Offset);
 
-        // Dragon book says perform all match tests.
-        // Then return best match based on length and pattern set index.
-        var text = source.ToString();
-        var bestMatch = new SymbolMatch(new(offset, 0, Pattern.NoMatch), int.MaxValue);
+        // Skipping ignore patterns can consume the rest of the source (trailing whitespace, comments).
+        // Report that as end-of-source, not a NoMatch — otherwise a streaming consumer sees a phantom error token.
+        if (offset >= span.Length)
+        {
+            return new(new Source(span, offset), new Symbol(offset, 0, Pattern.EndOfSource));
+        }
+
+        // Dragon book: perform all match tests, take the best (longest; ties to lowest pattern index).
+        var best = new Symbol(offset, 0, Pattern.NoMatch);
+        var bestIndex = int.MaxValue;
         var patterns = matchPatterns;
-        var length = patterns.Length;
-        for (var i = 0; i < length; ++i)
+        for (var i = 0; i < patterns.Length; ++i)
         {
-            bestMatch = CompareAndSwap(patterns[i].Match(text, offset), i, bestMatch);
-        }
-
-        var symbol = bestMatch.Symbol;
-
-        return symbol.IsMatch
-            ? new(new(text, offset + symbol.Length), symbol)
-            : new(new(text, offset), symbol);
-    }
-
-    [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private readonly ref struct SymbolMatch(
-        Symbol symbol,
-        int index)
-    {
-        public readonly Symbol Symbol = symbol;
-        public readonly int Index = index;
-    }
-
-    private int NextOffset(Source source)
-    {
-        var offset = source.Offset;
-        var text = source.ToString();
-
-        var patterns = ignorePatterns;
-        foreach (var pattern in patterns)
-        {
-            var match = pattern.Match(text, offset);
-            if (match.IsMatch)
+            var candidate = patterns[i].Match(span, offset);
+            if (!candidate.IsMatch)
             {
-                offset += match.Length;
+                continue;
+            }
+
+            if (!best.IsMatch
+                || candidate.Length > best.Length
+                || candidate.Length == best.Length && i < bestIndex)
+            {
+                best = candidate;
+                bestIndex = i;
             }
         }
 
-        return offset;
+        // On failure, span the single offending character (offset < span.Length is guaranteed by the
+        // end-of-source check above) so the caller can read the character that broke the lex. The offset
+        // itself does not advance; recovery is the caller's choice.
+        return best.IsMatch
+            ? new(new Source(span, offset + best.Length), best)
+            : new(new Source(span, offset), new Symbol(offset, 1, Pattern.NoMatch));
     }
 
-    // no match is not swap candidate
-    // longer match wins
-    // tie goes to lowest index
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static SymbolMatch CompareAndSwap(Symbol nextSymbol, int index, SymbolMatch bestMatch) =>
-        !nextSymbol.IsMatch
-            ? bestMatch
-            : nextSymbol.Length.CompareTo(bestMatch.Symbol.Length) switch
+    private int NextOffset(ReadOnlySpan<char> span, int offset)
+    {
+        // Loop until a full pass advances nothing: a single pass can't skip interleaved runs of
+        // different ignorables (e.g. whitespace then a comment then whitespace). Each match advances
+        // by at least one char (Symbol.IsMatch requires Length > 0), so this always terminates.
+        var patterns = ignorePatterns;
+        bool advanced;
+        do
+        {
+            advanced = false;
+            foreach (var pattern in patterns)
             {
-                > 0 => new(nextSymbol, index),
-                < 0 => bestMatch,
-                0 or _ => index < bestMatch.Index ? new(nextSymbol, index) : bestMatch,
-            };
+                var match = pattern.Match(span, offset);
+                if (match.IsMatch)
+                {
+                    offset += match.Length;
+                    advanced = true;
+                }
+            }
+        }
+        while (advanced);
+
+        return offset;
+    }
 }

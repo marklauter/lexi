@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace Lexi;
 
 /// <summary>
-/// Vocabulary builder let's users easily build a set of lexer patterns to either match or ignore.
+/// Builds the match and ignore pattern sets for a <see cref="Lexer"/>.
 /// </summary>
 public sealed class VocabularyBuilder
 {
@@ -17,17 +17,18 @@ public sealed class VocabularyBuilder
     private VocabularyBuilder(RegexOptions regexOptions) => this.regexOptions = regexOptions;
 
     /// <summary>
-    /// Creates a new instance of <see cref="VocabularyBuilder"/> with RegexOptions.None. <seealso cref="RegexOptions"/>
+    /// Creates a new <see cref="VocabularyBuilder"/> with <see cref="RegexOptions.None"/>.
     /// </summary>
-    /// <returns><see cref="VocabularyBuilder"/></returns>
+    /// <returns>A new <see cref="VocabularyBuilder"/>.</returns>
+    /// <seealso cref="RegexOptions"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VocabularyBuilder Create() => new(RegexOptions.None);
 
     /// <summary>
-    /// Creates a new instance of <see cref="VocabularyBuilder"/> with the specified <see cref="RegexOptions"/>.
+    /// Creates a new <see cref="VocabularyBuilder"/> with the specified <see cref="RegexOptions"/>.
     /// </summary>
-    /// <param name="regexOptions">The default <see cref="RegexOptions"/> used by the builder to create Regex patterns from strings.</param>
-    /// <returns><see cref="VocabularyBuilder"/></returns>
+    /// <param name="regexOptions">The default <see cref="RegexOptions"/> the builder uses to create <see cref="Regex"/> patterns from strings.</param>
+    /// <returns>A new <see cref="VocabularyBuilder"/>.</returns>
     /// <remarks>
     /// RegexOptions may be overridden in calls to Match and Ignore.
     /// </remarks>
@@ -35,18 +36,18 @@ public sealed class VocabularyBuilder
     public static VocabularyBuilder Create(RegexOptions regexOptions) => new(regexOptions);
 
     /// <summary>
-    /// Creates a new instance of <see cref="Lexer"/> from the patterns built by the builder.
+    /// Creates a new <see cref="Lexer"/> from the match and ignore patterns collected by the builder.
     /// </summary>
-    /// <returns><see cref="Lexer"/></returns>
+    /// <returns>A new <see cref="Lexer"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Lexer Build() => new([.. matchPatterns], [.. ignorePatterns]);
 
     /// <summary>
-    /// Match adds a pattern to the match list.
+    /// Adds a pattern to the match list.
     /// </summary>
     /// <param name="pattern">The regular expression string from which to build a <see cref="Regex"/> to add to the match list.</param>
-    /// <param name="tokenId">The token identifier for the pattern.</param>
-    /// <returns><see cref="VocabularyBuilder"/></returns>
+    /// <param name="tokenId">The token identifier for the pattern. Must be less than <see cref="Pattern.NoMatch"/>.</param>
+    /// <returns>The same <see cref="VocabularyBuilder"/> instance for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VocabularyBuilder Match(
         string pattern,
@@ -57,11 +58,11 @@ public sealed class VocabularyBuilder
     }
 
     /// <summary>
-    /// Match adds a pattern to the match list.
+    /// Adds a pattern to the match list.
     /// </summary>
     /// <param name="regex">The <see cref="Regex"/> to add to the match list.</param>
-    /// <param name="tokenId">The token identifier for the pattern.</param>
-    /// <returns><see cref="VocabularyBuilder"/></returns>
+    /// <param name="tokenId">The token identifier for the pattern. Must be less than <see cref="Pattern.NoMatch"/>.</param>
+    /// <returns>The same <see cref="VocabularyBuilder"/> instance for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VocabularyBuilder Match(
         Regex regex,
@@ -72,10 +73,10 @@ public sealed class VocabularyBuilder
     }
 
     /// <summary>
-    /// Match adds a set of patterns to the match list.
+    /// Adds a set of patterns to the match list.
     /// </summary>
-    /// <param name="patterns">A prebuilt <see cref="Pattern"/> set to be appened to the match list.</param>
-    /// <returns><see cref="VocabularyBuilder"/></returns>
+    /// <param name="patterns">A prebuilt <see cref="Pattern"/> set to append to the match list.</param>
+    /// <returns>The same <see cref="VocabularyBuilder"/> instance for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VocabularyBuilder Match(Pattern[] patterns)
     {
@@ -84,11 +85,11 @@ public sealed class VocabularyBuilder
     }
 
     /// <summary>
-    /// Ignore adds a pattern to the ignore list.
+    /// Adds a pattern to the ignore list.
     /// </summary>
     /// <param name="pattern">The regular expression string from which to build a <see cref="Regex"/> to add to the ignore list.</param>
-    /// <param name="tokenId">The token identifier for the pattern.</param>
-    /// <returns><see cref="VocabularyBuilder"/></returns>
+    /// <param name="tokenId">The token identifier for the pattern. Must be less than <see cref="Pattern.NoMatch"/>.</param>
+    /// <returns>The same <see cref="VocabularyBuilder"/> instance for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VocabularyBuilder Ignore(
         string pattern,
@@ -99,11 +100,11 @@ public sealed class VocabularyBuilder
     }
 
     /// <summary>
-    /// Ignore adds a pattern to the ignore list.
+    /// Adds a pattern to the ignore list.
     /// </summary>
     /// <param name="regex">The <see cref="Regex"/> to add to the ignore list.</param>
-    /// <param name="tokenId">The token identifier for the pattern.</param>
-    /// <returns><see cref="VocabularyBuilder"/></returns>
+    /// <param name="tokenId">The token identifier for the pattern. Must be less than <see cref="Pattern.NoMatch"/>.</param>
+    /// <returns>The same <see cref="VocabularyBuilder"/> instance for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VocabularyBuilder Ignore(
         Regex regex,
@@ -114,10 +115,10 @@ public sealed class VocabularyBuilder
     }
 
     /// <summary>
-    /// Ignore adds a set of patterns to the ignore list.
+    /// Adds a set of patterns to the ignore list.
     /// </summary>
-    /// <param name="patterns">A prebuilt <see cref="Pattern"/> set to be appened to the ignore list.</param>
-    /// <returns><see cref="VocabularyBuilder"/></returns>    
+    /// <param name="patterns">A prebuilt <see cref="Pattern"/> set to append to the ignore list.</param>
+    /// <returns>The same <see cref="VocabularyBuilder"/> instance for chaining.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VocabularyBuilder Ignore(Pattern[] patterns)
     {

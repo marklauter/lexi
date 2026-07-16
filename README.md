@@ -14,6 +14,62 @@ https://www.nuget.org/packages/MSL.Lexi/
 dotnet add package MSL.Lexi
 ```
 
+## Upgrading from v2 to v3
+v3.0.0 is a breaking release. The headline change is the **span-first redesign**: a `Symbol` is now a plain, collectible value — the matched text lives in `Source`, not in the token — so you can stream tokens into `List<Symbol>`, `IEnumerable<Symbol>`, fields, and across `await`, which the old `ref struct` `Symbol` made impossible.
+
+If you only do two things: **retarget to net10.0** and **replace implicit `Source`⇄`string` conversions**. Those cover most call sites.
+
+**1. Target framework: net6/7/8 → net10.0.** Every consumer must retarget; this is what forces the major bump.
+```xml
+<TargetFramework>net10.0</TargetFramework>
+```
+
+**2. `Symbol` is now a `readonly record struct` (was `readonly ref struct`).** Tokens are now collectible (`List<Symbol>`, fields, across `await`) and gain value equality. `Offset`/`Length`/`TokenId` are now properties rather than public fields — source-compatible for reads; recompile for the binary change.
+
+**3. Token text comes from `Source`, never from `Symbol`.** The span lives only in `Source`; read a token's text from the `Source` that produced it. `MatchResult` is still a `ref struct` (it carries a `Source`), so keep the `Symbol`s plus one `Source` to resolve their text on demand.
+```csharp
+ReadOnlySpan<char> text = result.Source.ReadSymbol(in result.Symbol);
+```
+
+**4. `Source` implicit operators removed.**
+```csharp
+// v2 — implicit conversions
+Source src = "1 + 2";       // string -> Source
+string s   = src;           // Source -> string
+// v3 — explicit
+Source src = new("1 + 2");  // or Source.FromString("1 + 2")
+string s   = src.ToString();
+```
+`lexer.NextMatch("…")` still works — v3 removes the implicit operator but adds an explicit `NextMatch(string)` overload. Only sites that relied on the conversion elsewhere need the explicit form.
+
+**5. `Source.ReadSymbol` returns `ReadOnlySpan<char>` (was `string`).** No substring is allocated now; call `.ToString()` if you need a `string`.
+
+**6. `Source.ToString()` returns the source text** (was the default `"Lexi.Source"`).
+
+**7. Sealing / static.** `CommonPatterns` is now `static` (`new CommonPatterns()` and subclassing no longer compile; calling the pattern members is unchanged). `VocabularyBuilder` is now `sealed`.
+
+**8. Behavioral & grammar changes (same API, different output).**
+- Trailing ignorable content now returns `EndOfSource`, not a spurious `NoMatch` error token.
+- Interleaved runs of different ignore patterns are now fully skipped (v2 made a single pass and could strand the offset).
+- A `NoMatch` symbol now spans the single offending character (`Length 1`, was `0`); `ReadSymbol` names it — `"lexer error at offset 14: unexpected '@'"`. The offset still does not advance; recovery is the caller's choice.
+- `ScientificNotationLiteral` now accepts a signed positive exponent (`1e+5`, `-1.5E+10`).
+- `CharacterLiteral` now supports escape sequences (`\b \t \n \r \f \' \" \\` and `\uXXXX`) and therefore **requires a backslash to be escaped** — v2's `'\'` (a lone backslash char) is now invalid; write `'\\'`.
+
+**9. Packaging.** v3 ships a `.snupkg` symbols package alongside the main package for the first time. Additive — no action required.
+
+### Quick reference
+| v2 | v3 |
+| --- | --- |
+| `net6.0;net7.0;net8.0` | `net10.0` |
+| `Symbol` is a `ref struct` (not collectible) | `readonly record struct` (collectible, value equality) |
+| `Source src = "text";` | `new Source("text")` / `Source.FromString("text")` |
+| `string s = source;` | `source.ToString()` |
+| `string t = source.ReadSymbol(in sym);` | `string t = source.ReadSymbol(in sym).ToString();` |
+| `Source.ToString()` → `"Lexi.Source"` | → the source text |
+| `new CommonPatterns()` / subclass | not allowed (`static`) — call members directly |
+| subclass `VocabularyBuilder` | not allowed (`sealed`) |
+| `'\'` matches a backslash char | invalid — use `'\\'` |
+
 ## Sample Projects
 I've included two sample projects in the repo to demonstrate the lexer within a recursive descent parser. One is a simple math parser and the other is a predicate expression parser.
 Each project includes a parser library, a set of tests for the parser, and a REPL console application that allows you to interact with the parser.
@@ -90,7 +146,9 @@ public static IServiceCollection AddParser(this IServiceCollection services)
         .Match("/", TokenIds.DIVIDE)
         .Match("%", TokenIds.MODULUS)
         .Match(@"\(", TokenIds.OPEN_PARENTHESIS)
-        .Match(@"\)", TokenIds.CLOSE_PARENTHESIS);
+        .Match(@"\)", TokenIds.CLOSE_PARENTHESIS)
+        .Ignore(CommonPatterns.Whitespace(), TokenIds.WHITE_SPACE)
+        .Ignore(CommonPatterns.NewLine(), TokenIds.WHITE_SPACE);
 
     // register the lexer with the service collection
     services.TryAddSingleton(serviceProvider => builder.Build());
@@ -134,7 +192,9 @@ public static IServiceCollection AddParser(this IServiceCollection services)
         .Match(">=", TokenIds.GREATER_THAN_OR_EQUAL)
         .Match("<", TokenIds.LESS_THAN)
         .Match("<=", TokenIds.LESS_THAN_OR_EQUAL)
-        .Match("!=", TokenIds.NOT_EQUAL);
+        .Match("!=", TokenIds.NOT_EQUAL)
+        .Ignore(CommonPatterns.Whitespace(), TokenIds.WHITE_SPACE)
+        .Ignore(CommonPatterns.NewLine(), TokenIds.WHITE_SPACE);
 
     // register the lexer with the service collection
     services.TryAddSingleton(serviceProvider => builder.Build());
@@ -165,20 +225,20 @@ public sealed class Parser(Lexer lexer)
     private readonly Lexer lexer = lexer
         ?? throw new ArgumentNullException(nameof(lexer));
 
-    public Expression Parse(string source)
-    {
-        ArgumentNullException.ThrowIfNull(source);
-
-        return ParseTerm(new Source(source))
-            .Expression;
-    }
-
     private readonly ref struct ParseResult(
         Expression expression,
         MatchResult matchResult)
     {
         public readonly Expression Expression = expression;
         public readonly MatchResult MatchResult = matchResult;
+    }
+
+    public Expression Parse(string source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        return ParseTerm(new Source(source))
+            .Expression;
     }
 
     private ParseResult ParseTerm(Source script)
@@ -279,17 +339,18 @@ public sealed class Parser(Lexer lexer)
             .Source
             .ReadSymbol(in matchResult.Symbol);
 
+        // todo: use TryParse and add error msg on false
         return matchResult.Symbol.TokenId switch
         {
             TokenIds.INTEGER_LITERAL => new Number(
                 NumericTypes.Integer,
-                Int32.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture)),
+                int.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture)),
             TokenIds.FLOATING_POINT_LITERAL => new Number(
                 NumericTypes.FloatingPoint,
-                Double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture)),
+                double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture)),
             TokenIds.SCIENTIFIC_NOTATION_LITERAL => new Number(
                 NumericTypes.ScientificNotation,
-                Double.Parse(value, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture)),
+                double.Parse(value, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture)),
             _ => new Number(NumericTypes.NotANumber, 0)
         };
     }
