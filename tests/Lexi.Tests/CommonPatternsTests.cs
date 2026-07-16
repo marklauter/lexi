@@ -57,12 +57,26 @@ public sealed class CommonPatternsTests
     public void CharacterLiteral_RejectsNonSingleCharacters(string input) =>
         AssertNoMatch(CommonPatterns.CharacterLiteral(), input);
 
-    [SuppressMessage("xUnit", "xUnit1004:Test methods should not be skipped", Justification = "Intentionally skipped: pins the intended (not-yet-implemented) escape-sequence behavior — see the todo in CommonPatterns.cs.")]
-    [Theory(Skip = "CharacterLiteral does not yet support escape sequences (\\n, \\t, \\u0000, ...) — see the todo in CommonPatterns.cs. Pins the intended behavior.")]
-    [InlineData(@"'\n'")]
+    [Theory]
+    [InlineData(@"'\b'")]
     [InlineData(@"'\t'")]
-    [InlineData(@"'\''")]
+    [InlineData(@"'\n'")]
+    [InlineData(@"'\r'")]
+    [InlineData(@"'\f'")]
+    [InlineData(@"'\''")] // escaped single quote
+    [InlineData("'\\\"'")] // escaped double quote
+    [InlineData(@"'\\'")] // escaped backslash
     [InlineData(@"'A'")]
-    public void CharacterLiteral_ShouldMatchEscapeSequences(string input) =>
+    [InlineData(@"'\u0041'")] // unicode escape
+    [InlineData(@"'\uabcd'")] // lower-case hex unicode escape
+    public void CharacterLiteral_MatchesEscapeSequences(string input) =>
         AssertConsumesWhole(CommonPatterns.CharacterLiteral(), input);
+
+    [Theory]
+    [InlineData(@"'\'")]      // lone backslash is not a complete escape
+    [InlineData(@"'\x'")]     // unknown simple escape
+    [InlineData(@"'\u041'")]  // unicode escape needs four hex digits
+    [InlineData(@"'\u00G1'")] // non-hex digit
+    public void CharacterLiteral_RejectsMalformedEscapes(string input) =>
+        AssertNoMatch(CommonPatterns.CharacterLiteral(), input);
 }

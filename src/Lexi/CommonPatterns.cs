@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace Lexi;
 
@@ -31,8 +31,9 @@ public static partial class CommonPatterns
     [GeneratedRegex(@"\G""(?:[^""\\\n\r]|\\.)*""", PatternOptions)]
     public static partial Regex QuotedStringLiteral();
 
-    // todo: need to add char literal pattern for escape codes like \b, \t, \n, \r, \f, \', \", \\, \u0000, \uFFFF
-    [GeneratedRegex(@"\G'[^']'", PatternOptions)]
+    // A single character between single quotes: either one ordinary char (not a quote or backslash),
+    // a simple escape (backslash + one of b t n r f ' " \), or a 4-hex-digit unicode escape (\uXXXX).
+    [GeneratedRegex(@"\G'(?:[^'\\]|\\[btnrf'""\\]|\\u[0-9A-Fa-f]{4})'", PatternOptions)]
     public static partial Regex CharacterLiteral();
 
     [GeneratedRegex(@"\G[a-zA-Z_]\w*", PatternOptions)]
