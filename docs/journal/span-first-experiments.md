@@ -68,4 +68,9 @@ _(to be filled: paste the BDN summary table + one-paragraph takeaway)_
 ## Decision
 
 _(to be filled after both: does span-first earn the break, or is the non-breaking EnumerateMatches swap the
-right move for now? Link the follow-up note/decision.)_
+right move for now?)_
+
+Then **promote this decision into a first-class note** under `docs/notes/` (the repo's current-state memory)
+so it's findable without reading the whole journal — a short note stating the recommendation, the numbers that
+drove it, and the follow-up action (e.g. "apply the non-breaking `Match → EnumerateMatches` swap to the
+shipping lexer" or "schedule span-first for v3"). Cross-link it back to this journal entry.
