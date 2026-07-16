@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<IsPackable>false</IsPackable>
+		<!-- BenchmarkDotNet discovers public [Benchmark] methods on public types via reflection, so the
+		     "make types internal" rule does not apply here. -->
+		<NoWarn>$(NoWarn);CA1515</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BenchmarkDotNet" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Lexi\Lexi.csproj" />
+		<ProjectReference Include="..\..\src\Lexi.Spans\Lexi.Spans.csproj" />
+	</ItemGroup>
+
+</Project>

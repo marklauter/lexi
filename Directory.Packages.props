@@ -11,6 +11,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<!-- Benchmarks (spike/span-first-lexer only) -->
+		<PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<!-- Samples -->
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
 		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
