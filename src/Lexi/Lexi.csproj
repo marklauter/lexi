@@ -30,10 +30,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="$(MSBuildProjectName).Tests" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="..\..\images\lexi.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>

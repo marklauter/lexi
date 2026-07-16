@@ -13,10 +13,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="$(MSBuildProjectName).Tests" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\..\..\src\Lexi\Lexi.csproj" />
 	</ItemGroup>
 
