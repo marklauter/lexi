@@ -88,7 +88,9 @@ public readonly ref struct Source
     public ReadOnlySpan<char> ReadSymbol(ref readonly Symbol symbol) => symbol.IsEndOfSource
         ? "EOF"
         : !symbol.IsMatch
-            ? $"lexer error at offset: {symbol.Offset}"
+            ? symbol.Offset < text.Length
+                ? $"lexer error at offset {symbol.Offset}: unexpected '{text[symbol.Offset]}'"
+                : $"lexer error at offset: {symbol.Offset}"
             : text.Slice(symbol.Offset, symbol.Length);
 
     /// <summary>

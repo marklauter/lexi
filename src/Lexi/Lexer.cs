@@ -81,9 +81,12 @@ public sealed class Lexer(
             }
         }
 
+        // On failure, span the single offending character (offset < span.Length is guaranteed by the
+        // end-of-source check above) so the caller can read *what* broke, not just where. The offset
+        // itself does not advance — recovery is the caller's choice.
         return best.IsMatch
             ? new(new Source(span, offset + best.Length), best)
-            : new(new Source(span, offset), best);
+            : new(new Source(span, offset), new Symbol(offset, 1, Pattern.NoMatch));
     }
 
     private int NextOffset(ReadOnlySpan<char> span, int offset)

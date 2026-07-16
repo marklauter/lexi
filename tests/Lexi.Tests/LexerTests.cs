@@ -137,6 +137,8 @@ public sealed class LexerTests
         Assert.False(second.Symbol.IsMatch);
         Assert.False(second.Symbol.IsEndOfSource);
         Assert.Equal(4, second.Source.Offset); // positioned on '@', after the ignored space
+        Assert.Equal(1, second.Symbol.Length); // spans the single offending character
+        Assert.Equal("@", second.Source.Span.Slice(second.Symbol.Offset, second.Symbol.Length).ToString());
     }
 
     [Fact]
