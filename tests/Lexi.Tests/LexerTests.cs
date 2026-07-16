@@ -106,6 +106,73 @@ public sealed class LexerTests
     }
 
     [Fact]
+    public void NextMatch_EmptySource_ReturnsEndOfSource()
+    {
+        var lexer = new Lexer([Pattern.New(@"[a-z]+", Word)], []);
+
+        var match = lexer.NextMatch("");
+
+        Assert.True(match.Symbol.IsEndOfSource);
+    }
+
+    [Fact]
+    public void NextMatch_AllIgnorableSource_ReturnsEndOfSource()
+    {
+        var lexer = new Lexer([Pattern.New(@"[a-z]+", Word)], [Pattern.New(@"\s+", Space)]);
+
+        var match = lexer.NextMatch("   ");
+
+        Assert.True(match.Symbol.IsEndOfSource);
+    }
+
+    [Fact]
+    public void NextMatch_MidStreamUnrecognizedInput_ReturnsNoMatchAtThatOffset()
+    {
+        var lexer = new Lexer([Pattern.New(@"[a-z]+", Word)], [Pattern.New(@"\s+", Space)]);
+
+        var first = lexer.NextMatch("abc @@@");
+        var second = lexer.NextMatch(first);
+
+        Assert.Equal(Word, first.Symbol.TokenId);
+        Assert.False(second.Symbol.IsMatch);
+        Assert.False(second.Symbol.IsEndOfSource);
+        Assert.Equal(4, second.Source.Offset); // positioned on '@', after the ignored space
+    }
+
+    [Fact]
+    public void NextMatch_ZeroWidthCapablePattern_ProducesNoTokenAndDoesNotAdvance()
+    {
+        // \d* matches the empty string at a non-digit position. A zero-length match is not a token,
+        // so the lexer must report NoMatch and hold the offset — never emit a zero-width symbol.
+        var lexer = new Lexer([Pattern.New(@"\d*", Number)], []);
+
+        var match = lexer.NextMatch("abc");
+
+        Assert.False(match.Symbol.IsMatch);
+        Assert.Equal(0, match.Source.Offset);
+    }
+
+    [Fact]
+    public void NextMatch_ZeroWidthCapablePattern_DoesNotShadowALongerRealMatch()
+    {
+        var lexer = new Lexer([Pattern.New(@"\d*", Number), Pattern.New(@"[a-z]+", Word)], []);
+
+        Assert.Equal(Word, lexer.NextMatch("abc").Symbol.TokenId);
+    }
+
+    [Fact]
+    public void NextMatch_ZeroWidthCapableIgnorePattern_Terminates()
+    {
+        // \d* matches empty at every non-digit position; if a zero-length ignore match counted as
+        // progress, NextOffset's skip loop would spin forever. The test completing proves it doesn't.
+        var lexer = new Lexer([Pattern.New(@"[a-z]+", Word)], [Pattern.New(@"\d*", Space)]);
+
+        var match = lexer.NextMatch("abc");
+
+        Assert.Equal(Word, match.Symbol.TokenId);
+    }
+
+    [Fact]
     public void NextMatch_SkipsInterleavedIgnorableRuns()
     {
         var lexer = new Lexer(
