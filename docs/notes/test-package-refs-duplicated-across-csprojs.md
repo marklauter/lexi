@@ -5,8 +5,17 @@ tags: [note, todo, lexi, build, canon, house-standard]
 created: 2026-07-14
 priority: low
 effort: low
-status: open
+status: resolved
 ---
+
+> **Resolved 2026-07-16.** Mark chose to hoist (template pattern, and writing-csharp's single-source-of-truth
+> rule), moving lexi off the pool/dynamodblite per-csproj majority. Shared 7-package xUnit/coverlet stack +
+> `<Using Include="Xunit" />` now live once in `Directory.Build.props` behind the `.Tests` condition; the three
+> `GlobalUsings.cs` are deleted. `InternalsVisibleTo` hoisted behind the non-`.Tests` condition. The "partial
+> split" worry was unfounded — all three test projects use the DI-fixture packages (`Options.ConfigurationExtensions`,
+> `Xunit.DependencyInjection`), so the shared block is genuinely shared; only `ArchUnitNET` and `DI.Abstractions`
+> stay local to `Lexi.Tests`. Green in Debug and Release, 252 tests. The [[thresholdstat-total-vs-minimum-disagreement]]
+> decision remains open — it's a cross-repo house-standard call, not a lexi-local one.
 
 # Test package refs and InternalsVisibleTo are duplicated across csprojs
 
