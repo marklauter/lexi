@@ -48,7 +48,25 @@ rewrite and no breaking change?
   *without* the breaking rewrite — a cheap `Match → EnumerateMatches` change to the current lexer.
 
 ### Result 1
-_(to be filled: paste the BDN summary table + one-paragraph takeaway)_
+
+Full job, `[MemoryDiagnoser]`, net10.0, Release. Correctness gate passed (identical token counts). Baseline is
+the shipping `Lexi.Lexer`; `CheapSwap` is the string-in lexer with the sole change being `Match →
+EnumerateMatches`.
+
+| Method    | Repeats | Mean      | Ratio | Allocated  | Alloc Ratio |
+|---------- |-------- |----------:|------:|-----------:|------------:|
+| Shipping  |   1,000 |  2.389 ms |  1.00 |  5,200,000 B |      1.00 |
+| CheapSwap |   1,000 |  2.083 ms |  0.87 |          0 B |      0.00 |
+| Shipping  |  10,000 | 24.004 ms |  1.00 | 52,000,000 B |      1.00 |
+| CheapSwap |  10,000 | 21.168 ms |  0.88 |          0 B |      0.00 |
+
+**Takeaway:** the entire allocation win is available from the non-breaking swap alone. `EnumerateMatches`
+drops per-token allocation to **0 B** (from 5.2 MB / 52 MB — the per-pattern-per-token `Match` object, gone)
+with **zero** change to the public surface: same `string` in, same token count out, same algorithm. The
+speedup is a real but secondary **~12–13%** (ratio 0.87–0.88). Note this is smaller than the conflated
+`ShortRunJob` read's ~27% — that number rode on span-first types *plus* short-run noise; isolated and
+full-job, the regex swap by itself is a modest time win on top of a total allocation win. The allocation
+elimination — not the speedup — is the headline, and it costs nothing.
 
 ## Experiment 2 — "What does full span-first buy, end-to-end?" (breaking)
 
