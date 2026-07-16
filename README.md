@@ -15,7 +15,7 @@ dotnet add package MSL.Lexi
 ```
 
 ## Upgrading from v2
-v3.0.0 is a breaking release (net10 retarget plus the span-first `Symbol`/`Source` redesign). See the [v2 → v3 upgrade guide](docs/upgrading-to-v3.md) for the full list of breaking changes with before/after fixes.
+v3.0.0 is a breaking release (net10 retarget plus the span-first `Symbol`/`Source` redesign). See the [v2 → v3 upgrade guide](https://github.com/marklauter/lexi/blob/main/docs/upgrading-to-v3.md) for the full list of breaking changes with before/after fixes.
 
 ## Sample Projects
 I've included two sample projects in the repo to demonstrate the lexer within a recursive descent parser. One is a simple math parser and the other is a predicate expression parser.
