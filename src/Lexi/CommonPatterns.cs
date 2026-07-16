@@ -25,7 +25,7 @@ public static partial class CommonPatterns
     [GeneratedRegex(@"\G\-?\d+\.\d+", PatternOptions)]
     public static partial Regex FloatingPointLiteral();
 
-    [GeneratedRegex(@"\G\-?\d+(?:\.\d+)?[eE]\-?\d+", PatternOptions)]
+    [GeneratedRegex(@"\G\-?\d+(?:\.\d+)?[eE][+\-]?\d+", PatternOptions)]
     public static partial Regex ScientificNotationLiteral();
 
     [GeneratedRegex(@"\G""(?:[^""\\\n\r]|\\.)*""", PatternOptions)]
