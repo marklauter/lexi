@@ -1,4 +1,5 @@
-﻿using Math.Parser;
+﻿using Math.Parsing;
+using Math.Parsing.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -29,7 +30,7 @@ while (!string.IsNullOrWhiteSpace(source))
         Console.Write("math:> ");
         source = Console.ReadLine();
     }
-    catch (Exception ex)
+    catch (ParseException ex)
     {
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine($"{ex.GetType().Name}, {ex.Message}");

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Predicate.Parser\Predicate.Parser.csproj" />
+		<ProjectReference Include="..\Predicate.Parsing\Predicate.Parsing.csproj" />
 	</ItemGroup>
 
 </Project>

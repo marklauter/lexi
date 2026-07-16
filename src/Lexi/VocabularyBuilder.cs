@@ -6,7 +6,7 @@ namespace Lexi;
 /// <summary>
 /// Vocabulary builder let's users easily build a set of lexer patterns to either match or ignore.
 /// </summary>
-public class VocabularyBuilder
+public sealed class VocabularyBuilder
 {
     private readonly List<Pattern> matchPatterns = [];
     private readonly List<Pattern> ignorePatterns = [];

@@ -20,11 +20,11 @@
     <Project Path="tests/Lexi.Tests/Lexi.Tests.csproj" />
   </Folder>
   <Folder Name="/samples/">
-    <Project Path="samples/Math/Math.Parser/Math.Parser.csproj" />
-    <Project Path="samples/Math/Math.Parser.Tests/Math.Parser.Tests.csproj" />
+    <Project Path="samples/Math/Math.Parsing/Math.Parsing.csproj" />
+    <Project Path="samples/Math/Math.Parsing.Tests/Math.Parsing.Tests.csproj" />
     <Project Path="samples/Math/Math.REPL/Math.REPL.csproj" />
-    <Project Path="samples/Predicate/Predicate.Parser/Predicate.Parser.csproj" />
-    <Project Path="samples/Predicate/Predicate.Parser.Tests/Predicate.Parser.Tests.csproj" />
+    <Project Path="samples/Predicate/Predicate.Parsing/Predicate.Parsing.csproj" />
+    <Project Path="samples/Predicate/Predicate.Parsing.Tests/Predicate.Parsing.Tests.csproj" />
     <Project Path="samples/Predicate/Predicate.REPL/Predicate.REPL.csproj" />
   </Folder>
 </Solution>

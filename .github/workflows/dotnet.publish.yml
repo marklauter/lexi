@@ -38,7 +38,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
     steps:
     - uses: actions/checkout@v7
     - uses: ./.github/actions/setup-dotnet
@@ -67,12 +66,6 @@ jobs:
         name: nuget-packages
         path: nuget/*
         retention-days: 30
-
-    - name: Publish to nuget.pkg.github.com
-      if: github.event_name == 'release'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: dotnet nuget push nuget/*.nupkg --skip-duplicate -k "$GITHUB_TOKEN" -s https://nuget.pkg.github.com/marklauter/index.json
 
     - name: Publish to api.nuget.org
       if: github.event_name == 'release'

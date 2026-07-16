@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Math.Parser\Math.Parser.csproj" />
+		<ProjectReference Include="..\Math.Parsing\Math.Parsing.csproj" />
 	</ItemGroup>
 
 </Project>

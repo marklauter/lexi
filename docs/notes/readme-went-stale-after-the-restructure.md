@@ -20,6 +20,6 @@ Two independent staleness bugs, both introduced by the modernization and both sh
 
 Both fixed. The three TFM badges collapsed to a single .NET 10.0 badge; the two sample links repointed at `samples/`. Swept the repo for other stale `Samples/` or `net6.0`/`net7.0`/`net8.0` references across `*.md`, `*.yml`, `*.csproj`, `*.props`, and `*.slnx` — none remain.
 
-Still outstanding: `README.md:4` carries a `Nuget-v2.2.2` badge that needs bumping when [[lexi-3-0-0-is-a-breaking-release]] ships.
+The `Nuget-v2.2.2` badge that was outstanding here is resolved, and not by bumping it — the whole badge block was replaced with canon's, whose NuGet shield is dynamic and self-updates on publish. See [[readme-badges-diverge-from-canon]]. Note the third staleness bug that sweep missed: the `.NET 10.0` badge left behind by the TFM collapse was labelled `Nuget`.
 
 The generalisable lesson: `Samples/` → `samples/` is a case-only rename, which git recorded correctly (`git ls-tree` confirms lowercase) but which can leave a stale `Samples` directory in existing checkouts on case-insensitive filesystems. Anyone with an old clone may need to re-checkout.

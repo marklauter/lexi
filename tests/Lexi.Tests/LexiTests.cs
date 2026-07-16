@@ -34,6 +34,7 @@ public sealed class LexiTests(Lexer lexer)
     }
 
     [SuppressMessage("Performance", "CA1861:Avoid constant arrays as arguments", Justification = "unit test")]
+    [SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "xUnit supplies both parameters from the [InlineData] above; null is unreachable, so a guard would be dead code. The method is only public because xUnit requires it.")]
     [Theory]
     [InlineData("1 -1 10 1.0 0.1 + -", new TestToken[] {
         TestToken.IntegerLiteral,

@@ -15,6 +15,25 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<!-- Solution-wide analyzer carve-out:
+		     CA1028 enum storage should be Int32 : token ids are an unsigned concept. Lexi's public API is
+		            uint (Symbol.TokenId, Symbol.Is(uint)), and Pattern reserves the top two bits as flags -
+		            EndOfSource is 1U << 31, the sign bit, which has no non-negative int spelling. Token enums
+		            are declared : uint so they drop into Symbol.Is(uint) without a cast; that is the designed
+		            ergonomics, not an oversight. Signed storage would be wrong for the domain, so the rule is
+		            rejected rather than worked around. -->
+		<!--
+		     CA1008 enums should have a zero value : the token enums alias TokenIds constants, where 0 is already
+		            TokenIds.WHITE_SPACE - not a keyword, comparison operator, or logical operator. Each of these
+		            enums previously carried an `Error = 0` member that nothing ever constructed; it existed only
+		            to be rejected, and forced ToString() to throw (CA1065). Removing it made invalid states
+		            unrepresentable and ToString() total. CA1008 asks for that phantom state back, so it is
+		            rejected for the same reason CA1028 is.
+		-->
+		<NoWarn>$(NoWarn);CA1028;CA1008</NoWarn>
+	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
 		<!-- Reproducible builds + normalized SourceLink paths in packed binaries. On only in CI. -->
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Predicate.Parser;
-using Predicate.Parser.Exceptions;
+using Predicate.Parsing;
+using Predicate.Parsing.Exceptions;
 using Predicate.REPL;
 
 using var host = Host

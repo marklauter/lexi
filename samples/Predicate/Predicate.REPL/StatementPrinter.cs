@@ -1,5 +1,5 @@
-﻿using Predicate.Parser.Exceptions;
-using Predicate.Parser.Expressions;
+﻿using Predicate.Parsing.Exceptions;
+using Predicate.Parsing.Expressions;
 
 namespace Predicate.REPL;
 
@@ -8,20 +8,20 @@ internal static class StatementPrinter
     public static void Print(this Statement statement)
     {
         PrintExpressionType(nameof(statement.From));
-        PrintExpressionValue((string)statement.From);
+        PrintExpressionValue(statement.From.ToString());
         Console.WriteLine();
 
         if (statement.Skip != null)
         {
             PrintExpressionType(nameof(statement.Skip));
-            PrintExpressionValue((string)statement.Skip);
+            PrintExpressionValue(statement.Skip.ToString());
             Console.WriteLine();
         }
 
         if (statement.Take != null)
         {
             PrintExpressionType(nameof(statement.Take));
-            PrintExpressionValue((string)statement.Take);
+            PrintExpressionValue(statement.Take.ToString());
             Console.WriteLine();
         }
 
@@ -113,11 +113,11 @@ internal static class StatementPrinter
     {
         var value = expression switch
         {
-            Identifier identifier => (string)identifier,
+            Identifier identifier => identifier.ToString(),
             Keyword keyword => keyword.ToString(),
-            BooleanLiteral booleanLiteral => (string)booleanLiteral,
-            StringLiteral stringLiteral => (string)stringLiteral,
-            NumericLiteral numericLiteral => (string)numericLiteral,
+            BooleanLiteral booleanLiteral => booleanLiteral.ToString(),
+            StringLiteral stringLiteral => stringLiteral.ToString(),
+            NumericLiteral numericLiteral => numericLiteral.ToString(),
             _ => "unexpected expression",
         };
 
