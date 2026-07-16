@@ -3,11 +3,19 @@
 	<!-- Inherit the repo-wide build gate. The samples are held to the same analyzer bar as src/. -->
 	<Import Project="$([MSBuild]::GetPathOfFileAbove($(MSBuildThisFile), $(MSBuildThisFileDirectory)../))" />
 
-	<PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
-		<!-- The samples' suites demonstrate the parsers rather than cover them, so they sit below the library's
-		     floor: measured 68.04/64.47/74.28 (Math.Parser) and 68.15/36.52/61.84 (Predicate.Parser). Seeded under
-		     the lower of the two on each axis. Raise only — never lower. -->
-		<Threshold>68,36,61</Threshold>
+	<!-- The samples' suites demonstrate the parsers rather than cover them, so they sit below the library's floor.
+	     Each suite carries its OWN floor, seeded at its measured line,branch,method. A single shared floor took the
+	     minimum of each axis across both suites, which gated Math.Parsing's 64% branch coverage at Predicate's 37%
+	     and let a 27-point regression there pass silently. Raise only — never lower. A new sample .Tests project
+	     seeds its own block here after its first green run. -->
+	<PropertyGroup Condition="'$(MSBuildProjectName)' == 'Math.Parsing.Tests'">
+		<!-- measured 68.04/64.47/74.28 -->
+		<Threshold>68,64,74</Threshold>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(MSBuildProjectName)' == 'Predicate.Parsing.Tests'">
+		<!-- measured 69.76/37.98/64.93 -->
+		<Threshold>69,37,64</Threshold>
 	</PropertyGroup>
 
 </Project>
