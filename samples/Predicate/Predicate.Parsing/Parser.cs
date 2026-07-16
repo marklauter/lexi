@@ -295,27 +295,33 @@ public sealed class Parser(Lexer lexer)
             return (skip, take);
         }
 
-        if (matchResult.Symbol.IsKeyword())
+        if (matchResult.Symbol.TokenId == TokenIds.SKIP)
         {
-            if (matchResult.Symbol.TokenId == TokenIds.SKIP)
+            matchResult = lexer.NextMatch(matchResult);
+            skip = ParseNumericLiteral(in matchResult);
+
+            matchResult = lexer.NextMatch(matchResult);
+            if (IsEndOfSource(in matchResult))
             {
-                matchResult = lexer.NextMatch(matchResult);
-                skip = ParseNumericLiteral(in matchResult);
-
-                matchResult = lexer.NextMatch(matchResult);
+                return (skip, take);
             }
-
-            if (matchResult.Symbol.IsKeyword() &&
-                matchResult.Symbol.TokenId == TokenIds.TAKE)
-            {
-                matchResult = lexer.NextMatch(matchResult);
-                CheckEndOfSource(in matchResult);
-                take = ParseNumericLiteral(in matchResult);
-            }
-
-            return (skip, take);
         }
 
+        if (matchResult.Symbol.TokenId == TokenIds.TAKE)
+        {
+            matchResult = lexer.NextMatch(matchResult);
+            CheckEndOfSource(in matchResult);
+            take = ParseNumericLiteral(in matchResult);
+
+            matchResult = lexer.NextMatch(matchResult);
+            if (IsEndOfSource(in matchResult))
+            {
+                return (skip, take);
+            }
+        }
+
+        // Anything still unconsumed — a stray keyword, or trailing tokens after skip/take — is an error,
+        // not something to silently drop.
         throw new UnexpectedTokenException($"unexpected token '{matchResult.Source.ReadSymbol(in matchResult.Symbol)}' at offset {matchResult.Source.Offset}. expected ({nameof(Keywords.Skip)} | {nameof(Keywords.Take)}).");
     }
 
