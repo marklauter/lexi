@@ -106,6 +106,18 @@ public sealed class LexerTests
     }
 
     [Fact]
+    public void NextMatch_TrailingIgnoredContent_ReturnsEndOfSource()
+    {
+        var lexer = new Lexer([Pattern.New(@"[a-z]+", Word)], [Pattern.New(@" +", Space)]);
+
+        var first = lexer.NextMatch("abc ");
+        var second = lexer.NextMatch(first);
+
+        Assert.Equal(Word, first.Symbol.TokenId);
+        Assert.True(second.Symbol.IsEndOfSource);
+    }
+
+    [Fact]
     public void NextMatch_MatchResultOverload_ContinuesFromPreviousSource()
     {
         var lexer = new Lexer([Pattern.New(@"[a-z]+", Word), Pattern.New(@"\d+", Number)], [Pattern.New(@" +", Space)]);

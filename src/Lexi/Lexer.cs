@@ -53,6 +53,13 @@ public sealed class Lexer(
         var span = source.Span;
         var offset = NextOffset(span, source.Offset);
 
+        // Skipping ignore patterns can consume the rest of the source (trailing whitespace, comments).
+        // Report that as end-of-source, not a NoMatch — otherwise a streaming consumer sees a phantom error token.
+        if (offset >= span.Length)
+        {
+            return new(new Source(span, offset), new Symbol(offset, 0, Pattern.EndOfSource));
+        }
+
         // Dragon book: perform all match tests, take the best (longest; ties to lowest pattern index).
         var best = new Symbol(offset, 0, Pattern.NoMatch);
         var bestIndex = int.MaxValue;
