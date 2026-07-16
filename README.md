@@ -90,7 +90,9 @@ public static IServiceCollection AddParser(this IServiceCollection services)
         .Match("/", TokenIds.DIVIDE)
         .Match("%", TokenIds.MODULUS)
         .Match(@"\(", TokenIds.OPEN_PARENTHESIS)
-        .Match(@"\)", TokenIds.CLOSE_PARENTHESIS);
+        .Match(@"\)", TokenIds.CLOSE_PARENTHESIS)
+        .Ignore(CommonPatterns.Whitespace(), TokenIds.WHITE_SPACE)
+        .Ignore(CommonPatterns.NewLine(), TokenIds.WHITE_SPACE);
 
     // register the lexer with the service collection
     services.TryAddSingleton(serviceProvider => builder.Build());
@@ -134,7 +136,9 @@ public static IServiceCollection AddParser(this IServiceCollection services)
         .Match(">=", TokenIds.GREATER_THAN_OR_EQUAL)
         .Match("<", TokenIds.LESS_THAN)
         .Match("<=", TokenIds.LESS_THAN_OR_EQUAL)
-        .Match("!=", TokenIds.NOT_EQUAL);
+        .Match("!=", TokenIds.NOT_EQUAL)
+        .Ignore(CommonPatterns.Whitespace(), TokenIds.WHITE_SPACE)
+        .Ignore(CommonPatterns.NewLine(), TokenIds.WHITE_SPACE);
 
     // register the lexer with the service collection
     services.TryAddSingleton(serviceProvider => builder.Build());
@@ -165,20 +169,20 @@ public sealed class Parser(Lexer lexer)
     private readonly Lexer lexer = lexer
         ?? throw new ArgumentNullException(nameof(lexer));
 
-    public Expression Parse(string source)
-    {
-        ArgumentNullException.ThrowIfNull(source);
-
-        return ParseTerm(new Source(source))
-            .Expression;
-    }
-
     private readonly ref struct ParseResult(
         Expression expression,
         MatchResult matchResult)
     {
         public readonly Expression Expression = expression;
         public readonly MatchResult MatchResult = matchResult;
+    }
+
+    public Expression Parse(string source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        return ParseTerm(new Source(source))
+            .Expression;
     }
 
     private ParseResult ParseTerm(Source script)
@@ -279,17 +283,18 @@ public sealed class Parser(Lexer lexer)
             .Source
             .ReadSymbol(in matchResult.Symbol);
 
+        // todo: use TryParse and add error msg on false
         return matchResult.Symbol.TokenId switch
         {
             TokenIds.INTEGER_LITERAL => new Number(
                 NumericTypes.Integer,
-                Int32.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture)),
+                int.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture)),
             TokenIds.FLOATING_POINT_LITERAL => new Number(
                 NumericTypes.FloatingPoint,
-                Double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture)),
+                double.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture)),
             TokenIds.SCIENTIFIC_NOTATION_LITERAL => new Number(
                 NumericTypes.ScientificNotation,
-                Double.Parse(value, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture)),
+                double.Parse(value, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture)),
             _ => new Number(NumericTypes.NotANumber, 0)
         };
     }
