@@ -75,12 +75,16 @@ public sealed class Pattern
     { }
 
     internal Symbol Match(
-        string source,
+        ReadOnlySpan<char> source,
         int offset)
     {
-        var match = regex.Match(source, offset);
-        return match.Success
-           ? new(match.Index, match.Length, tokenId)
-           : new(offset, 0, tokenId | Pattern.NoMatch);
+        // \G-anchored at startat: the first yielded match is at offset, or there is none. EnumerateMatches
+        // yields ValueMatch structs and allocates no Match object — unlike regex.Match(source, offset).
+        foreach (var match in regex.EnumerateMatches(source, offset))
+        {
+            return new(match.Index, match.Length, tokenId);
+        }
+
+        return new(offset, 0, tokenId | Pattern.NoMatch);
     }
 }

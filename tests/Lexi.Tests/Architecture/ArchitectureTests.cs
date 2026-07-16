@@ -34,10 +34,11 @@ public sealed class ArchitectureTests
             .Because("writing-csharp: seal records and classes by default (enables devirtualization)."));
 
     // Deliberate deviation from pool/dynamodblite, which assert instance fields are NOT public.
-    // Lexi's public surface is ref structs (Symbol, Source, MatchResult) that expose readonly instance
-    // fields by design — Symbol carries a CA1051 suppression saying so, and the fields exist to keep the
-    // lexer's hot path allocation-free. The invariant those repos are protecting is "no public MUTABLE
-    // state", which Lexi honours: every public instance field is readonly. That is what this asserts.
+    // Lexi's public surface is span-first value types — Source and MatchResult are ref structs, Symbol is a
+    // plain readonly record struct — and MatchResult exposes readonly instance fields by design (a CA1051
+    // suppression says so) to keep the lexer's hot path allocation-free. The invariant those repos are
+    // protecting is "no public MUTABLE state", which Lexi honours: every public instance field is readonly.
+    // That is what this asserts.
     [Fact]
     public void InstanceFieldsAreReadOnly() =>
         Verify(FieldMembers()

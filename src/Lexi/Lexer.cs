@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace Lexi;
 
@@ -27,7 +27,7 @@ public sealed class Lexer(
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        return NextMatch(Source.FromString(source));
+        return NextMatch(new Source(source));
     }
 
     /// <summary>
@@ -47,47 +47,44 @@ public sealed class Lexer(
     {
         if (source.IsEndOfSource)
         {
-            return new(source, new(source.Offset, 0, Pattern.EndOfSource));
+            return new(source, new Symbol(source.Offset, 0, Pattern.EndOfSource));
         }
 
-        var offset = NextOffset(source);
+        var span = source.Span;
+        var offset = NextOffset(span, source.Offset);
 
-        // Dragon book says perform all match tests.
-        // Then return best match based on length and pattern set index.
-        var text = source.ToString();
-        var bestMatch = new SymbolMatch(new(offset, 0, Pattern.NoMatch), int.MaxValue);
+        // Dragon book: perform all match tests, take the best (longest; ties to lowest pattern index).
+        var best = new Symbol(offset, 0, Pattern.NoMatch);
+        var bestIndex = int.MaxValue;
         var patterns = matchPatterns;
-        var length = patterns.Length;
-        for (var i = 0; i < length; ++i)
+        for (var i = 0; i < patterns.Length; ++i)
         {
-            bestMatch = CompareAndSwap(patterns[i].Match(text, offset), i, bestMatch);
+            var candidate = patterns[i].Match(span, offset);
+            if (!candidate.IsMatch)
+            {
+                continue;
+            }
+
+            if (!best.IsMatch
+                || candidate.Length > best.Length
+                || candidate.Length == best.Length && i < bestIndex)
+            {
+                best = candidate;
+                bestIndex = i;
+            }
         }
 
-        var symbol = bestMatch.Symbol;
-
-        return symbol.IsMatch
-            ? new(new(text, offset + symbol.Length), symbol)
-            : new(new(text, offset), symbol);
+        return best.IsMatch
+            ? new(new Source(span, offset + best.Length), best)
+            : new(new Source(span, offset), best);
     }
 
-    [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private readonly ref struct SymbolMatch(
-        Symbol symbol,
-        int index)
+    private int NextOffset(ReadOnlySpan<char> span, int offset)
     {
-        public readonly Symbol Symbol = symbol;
-        public readonly int Index = index;
-    }
-
-    private int NextOffset(Source source)
-    {
-        var offset = source.Offset;
-        var text = source.ToString();
-
         var patterns = ignorePatterns;
         foreach (var pattern in patterns)
         {
-            var match = pattern.Match(text, offset);
+            var match = pattern.Match(span, offset);
             if (match.IsMatch)
             {
                 offset += match.Length;
@@ -96,18 +93,4 @@ public sealed class Lexer(
 
         return offset;
     }
-
-    // no match is not swap candidate
-    // longer match wins
-    // tie goes to lowest index
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static SymbolMatch CompareAndSwap(Symbol nextSymbol, int index, SymbolMatch bestMatch) =>
-        !nextSymbol.IsMatch
-            ? bestMatch
-            : nextSymbol.Length.CompareTo(bestMatch.Symbol.Length) switch
-            {
-                > 0 => new(nextSymbol, index),
-                < 0 => bestMatch,
-                0 or _ => index < bestMatch.Index ? new(nextSymbol, index) : bestMatch,
-            };
 }

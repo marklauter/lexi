@@ -1,41 +1,53 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Lexi;
 
 /// <summary>
-/// A symbol retrieved from the source.
+/// A token's position and id — offset, length, token id. A <b>plain</b> value type (a
+/// <c>readonly record struct</c>, not a <c>ref struct</c>): it holds no span, so tokens are freely
+/// collectible and streamable (<c>List&lt;Symbol&gt;</c>, <c>IEnumerable&lt;Symbol&gt;</c>, across
+/// <c>await</c>) and get value equality for free. The span lives only in <see cref="Source"/>; decoupling
+/// "where the token is" from "what the text is" is what dissolves the ref-struct wall.
 /// </summary>
-/// <param name="offset">The offset of the symbol in the source.</param>
-/// <param name="length">The length of the symbol.</param>
-/// <param name="tokenId">The token id of the symbol.</param>
-[SuppressMessage("Design", "CA1051:Do not declare visible instance fields", Justification = "it's a struct")]
 [DebuggerDisplay("{Offset}, {Length}, {TokenId}")]
-[method: MethodImpl(MethodImplOptions.AggressiveInlining)]
-public readonly ref struct Symbol(
-    int offset,
-    int length,
-    uint tokenId)
+public readonly record struct Symbol
 {
+    /// <summary>
+    /// Initializes a symbol.
+    /// </summary>
+    /// <param name="offset">The offset of the symbol in the source.</param>
+    /// <param name="length">The length of the symbol.</param>
+    /// <param name="tokenId">The token id of the symbol.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Symbol(
+        int offset,
+        int length,
+        uint tokenId)
+    {
+        Offset = offset < 0
+            ? throw new ArgumentOutOfRangeException(nameof(offset))
+            : offset;
+        Length = length < 0
+            ? throw new ArgumentOutOfRangeException(nameof(length))
+            : length;
+        TokenId = tokenId;
+    }
+
     /// <summary>
     /// Gets the offset.
     /// </summary>
-    public readonly int Offset = offset < 0
-        ? throw new ArgumentOutOfRangeException(nameof(offset))
-        : offset;
+    public int Offset { get; }
 
     /// <summary>
     /// Gets the length.
     /// </summary>
-    public readonly int Length = length < 0
-        ? throw new ArgumentOutOfRangeException(nameof(length))
-        : length;
+    public int Length { get; }
 
     /// <summary>
     /// Gets the token id.
     /// </summary>
-    public readonly uint TokenId = tokenId;
+    public uint TokenId { get; }
 
     /// <summary>
     /// Returns true if length > 0.

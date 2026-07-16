@@ -18,6 +18,15 @@ public sealed class SourceTests
     }
 
     [Fact]
+    public void Constructor_SpanOverload_DefaultsOffsetToZero()
+    {
+        var source = new Source("abc".AsSpan());
+
+        Assert.Equal(0, source.Offset);
+        Assert.Equal("abc", source.ToString());
+    }
+
+    [Fact]
     public void Constructor_NegativeOffset_ClampsToZero()
     {
         var source = new Source("abc", -5);

@@ -218,7 +218,7 @@ public sealed class Parser(Lexer lexer)
     {
         CheckEndOfSource(in matchResult);
 
-        var value = matchResult.Source.ReadSymbol(in matchResult.Symbol);
+        var value = matchResult.Source.ReadSymbol(in matchResult.Symbol).ToString();
         return matchResult.Symbol.IsIdentifier()
             ? Identifier.FromString(value)
             : throw new UnexpectedTokenException($"unexpected token '{value}' at offset {matchResult.Source.Offset}. expected {nameof(TokenIds.IDENTIFIER)}.");
@@ -246,8 +246,8 @@ public sealed class Parser(Lexer lexer)
                     matchResult.Source.ReadSymbol(in matchResult.Symbol),
                     NumberStyles.Number | NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint,
                     CultureInfo.InvariantCulture)),
-            TokenIds.STRING_LITERAL => StringLiteral.FromString(matchResult.Source.ReadSymbol(in matchResult.Symbol)),
-            TokenIds.CHAR_LITERAL => CharacterLiteral.FromString(matchResult.Source.ReadSymbol(in matchResult.Symbol)),
+            TokenIds.STRING_LITERAL => StringLiteral.FromString(matchResult.Source.ReadSymbol(in matchResult.Symbol).ToString()),
+            TokenIds.CHAR_LITERAL => CharacterLiteral.FromString(matchResult.Source.ReadSymbol(in matchResult.Symbol).ToString()),
             TokenIds.FALSE => BooleanLiteral.FromBoolean(false),
             TokenIds.TRUE => BooleanLiteral.FromBoolean(true),
             TokenIds.NULL_LITERAL => new NullLiteral(),
