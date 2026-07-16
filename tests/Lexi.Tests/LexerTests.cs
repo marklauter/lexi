@@ -35,7 +35,7 @@ public sealed class LexerTests
     {
         var lexer = new Lexer([Pattern.New(@"[a-z]+", Word)], []);
 
-        _ = Assert.Throws<ArgumentNullException>(() => lexer.NextMatch((string)null!));
+        _ = Assert.Throws<ArgumentNullException>(() => lexer.NextMatch(null!));
     }
 
     [Fact]

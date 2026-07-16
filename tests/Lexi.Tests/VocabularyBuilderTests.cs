@@ -29,7 +29,7 @@ public sealed class VocabularyBuilderTests
     {
         var lexer = VocabularyBuilder
             .Create()
-            .Match(new Regex(@"\G[a-z]+"), Word)
+            .Match(CommonPatterns.Identifier(), Word)
             .Build();
 
         Assert.Equal(Word, lexer.NextMatch("abc").Symbol.TokenId);
@@ -74,7 +74,7 @@ public sealed class VocabularyBuilderTests
         var lexer = VocabularyBuilder
             .Create()
             .Match(@"[a-z]+", Word)
-            .Ignore(new Regex(@"\G\s+"), Space)
+            .Ignore(CommonPatterns.Whitespace(), Space)
             .Build();
 
         Assert.Equal(Word, lexer.NextMatch("  abc").Symbol.TokenId);

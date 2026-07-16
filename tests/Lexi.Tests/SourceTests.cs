@@ -7,7 +7,7 @@ public sealed class SourceTests
 {
     [Fact]
     public void Constructor_NullText_Throws() =>
-        Assert.Throws<ArgumentNullException>(() => { _ = new Source(null!); });
+        Assert.Throws<ArgumentNullException>(() => _ = new Source(null!));
 
     [Fact]
     public void Constructor_DefaultsOffsetToZero()

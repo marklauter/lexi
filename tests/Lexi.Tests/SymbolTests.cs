@@ -7,11 +7,11 @@ public sealed class SymbolTests
 {
     [Fact]
     public void Constructor_NegativeOffset_Throws() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => { _ = new Symbol(-1, 0, 0); });
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = new Symbol(-1, 0, 0));
 
     [Fact]
     public void Constructor_NegativeLength_Throws() =>
-        Assert.Throws<ArgumentOutOfRangeException>(() => { _ = new Symbol(0, -1, 0); });
+        Assert.Throws<ArgumentOutOfRangeException>(() => _ = new Symbol(0, -1, 0));
 
     [Fact]
     public void Constructor_ZeroOffsetAndLength_Allowed()

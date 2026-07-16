@@ -33,7 +33,7 @@ public sealed class PatternTests
     [Fact]
     public void New_RegexOverload_MatchesAtOffset()
     {
-        var pattern = Pattern.New(new Regex(@"\Gabc"), 3);
+        var pattern = Pattern.New(CommonPatterns.Identifier(), 3);
 
         var symbol = pattern.Match("abc", 0);
 
