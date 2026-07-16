@@ -20,10 +20,13 @@ public static class ServiceCollectionExtensions
             .Match("endswith|ew", TokenIds.ENDS_WITH)
             .Match(@"and|&&", TokenIds.LOGICAL_AND)
             .Match(@"or|\|\|", TokenIds.LOGICAL_OR)
+            // Keyword literals are registered before Identifier: they tie with the identifier pattern on length,
+            // and the lexer breaks length ties by lowest pattern index, so a keyword literal must come first to
+            // win. Without this, "true"/"false"/"null" lex as identifiers and never reach their literal arms.
             .Match("null|NULL", TokenIds.NULL_LITERAL)
-            .Match(CommonPatterns.Identifier(), TokenIds.IDENTIFIER)
             .Match(nameof(TokenIds.TRUE), TokenIds.TRUE)
             .Match(nameof(TokenIds.FALSE), TokenIds.FALSE)
+            .Match(CommonPatterns.Identifier(), TokenIds.IDENTIFIER)
             .Match(CommonPatterns.IntegerLiteral(), TokenIds.INTEGER_LITERAL)
             .Match(CommonPatterns.FloatingPointLiteral(), TokenIds.FLOATING_POINT_LITERAL)
             .Match(CommonPatterns.ScientificNotationLiteral(), TokenIds.SCIENTIFIC_NOTATION_LITERAL)

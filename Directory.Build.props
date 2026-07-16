@@ -48,9 +48,11 @@
 		<Exclude>[*]*Exception</Exclude>
 		<!-- Source-generated files are plumbing too. -->
 		<ExcludeByFile>**/obj/**/*.g.cs</ExcludeByFile>
-		<!-- Coverage ratchet: floors seeded at the measured 82.67/70.45/72.97 (line/branch/method) for the Lexi
-		     library. Raise only — never lower. The samples carry their own, lower floor (samples/Directory.Build.props). -->
-		<Threshold>82,70,72</Threshold>
+		<!-- Coverage ratchet: floors at the measured 100/97.72/100 (line/branch/method) for the Lexi library.
+		     Branch sits below 100 by one defensive tie-break arm in Lexer.CompareAndSwap (index < bestMatch.Index
+		     true-side) that ascending iteration order makes unreachable. Raise only — never lower. The samples carry
+		     their own, lower floor (samples/Directory.Build.props). -->
+		<Threshold>100,97,100</Threshold>
 		<ThresholdType>line,branch,method</ThresholdType>
 		<ThresholdStat>total</ThresholdStat>
 		<!-- Test-project analyzer carve-outs, gated here rather than in per-assembly GlobalSuppressions:

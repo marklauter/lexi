@@ -9,13 +9,16 @@
 	     and let a 27-point regression there pass silently. Raise only — never lower. A new sample .Tests project
 	     seeds its own block here after its first green run. -->
 	<PropertyGroup Condition="'$(MSBuildProjectName)' == 'Math.Parsing.Tests'">
-		<!-- measured 68.04/64.47/74.28 -->
-		<Threshold>68,64,74</Threshold>
+		<!-- measured 99.48/97.36/100. Residual: ParseNumber's unreachable NotANumber default arm and the
+		     relational-or pattern nodes in SymbolExtensions the analyzer counts but iteration can't all hit. -->
+		<Threshold>99,97,100</Threshold>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(MSBuildProjectName)' == 'Predicate.Parsing.Tests'">
-		<!-- measured 69.76/37.98/64.93 -->
-		<Threshold>69,37,64</Threshold>
+		<!-- Release-measured 98.79/92.8/100 (branch coverage is config-dependent; CI runs Release, so the floor
+		     must hold there, not just in Debug's 93.79). Residual branch: unreachable defensive `_ => X.ToString()`
+		     defaults in the guarded ToString switches and the unimplemented array/object literal arms in ParseLiteral. -->
+		<Threshold>98,92,100</Threshold>
 	</PropertyGroup>
 
 </Project>

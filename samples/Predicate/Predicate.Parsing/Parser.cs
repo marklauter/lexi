@@ -146,6 +146,10 @@ public sealed class Parser(Lexer lexer)
     [SuppressMessage("Style", "IDE0010:Add missing cases", Justification = "switch is complete")]
     private ParseResult<Expression> ParseComparison(MatchResult matchResult)
     {
+        // Diagnose a truncated condition as end-of-source, consistent with every other parse step;
+        // without this an end-of-source symbol falls through to the "unexpected token 'EOF'" default.
+        CheckEndOfSource(in matchResult);
+
         switch (matchResult.Symbol.TokenId)
         {
             case TokenIds.IDENTIFIER:

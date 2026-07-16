@@ -5,8 +5,19 @@ tags: [note, todo, lexi, coverage, testing]
 created: 2026-07-14
 priority: medium
 effort: high
-status: open
+status: resolved
 ---
+
+> **Resolved 2026-07-16.** Tests written across the whole system; floors ratcheted to measured and holding.
+> `Lexi` 82.67/70.45/72.97 → **100/97.72/100**. `Math.Parsing` 68.04/64.47/74.28 → **99.48/97.36/100**.
+> `Predicate.Parsing` 69.76/37.98/64.93 → **98.79/92.8/100** (Release; branch coverage is config-dependent and CI
+> runs Release, so floors are seeded from the strictest config). Two real defects surfaced en route, both in the
+> Predicate sample: (1) `ParseComparison` reported a truncated condition as `unexpected token 'EOF'` instead of
+> `UnexpectedEndOfSourceException` like every other parse step — fixed with a leading `CheckEndOfSource`; (2)
+> `true`/`false` were unreachable as literals because the `Identifier` pattern was registered ahead of them and
+> won the lowest-index tie-break — fixed by registering the keyword literals first (mirroring `null`). Residual
+> sub-100 branch coverage is unreachable defensive code (guarded `ToString` defaults, a defensive tie-break arm,
+> unimplemented array/object literal arms), documented at each ratchet site.
 
 # Coverage floor is far below the house standard
 
