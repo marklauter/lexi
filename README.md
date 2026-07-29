@@ -3,8 +3,6 @@
 [![NuGet](https://img.shields.io/nuget/v/MSL.Lexi?logo=nuget)](https://www.nuget.org/packages/MSL.Lexi/)
 [![.NET](https://img.shields.io/badge/.NET-10.0-blue)](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/)
 
-![lexi logo](https://raw.githubusercontent.com/marklauter/lexi/main/images/lexi.png)
-
 # lexi
 A regex-based lexer for dotnet. The lexer supports simple L1 recursive descent parsers.
 
